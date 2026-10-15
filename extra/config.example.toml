@@ -1,0 +1,12 @@
+# Example matugen setup for Haze. Syntax can differ between matugen versions, check its docs.
+#
+# Haze runs `matugen image <wallpaper>` when you pick a wallpaper. matugen then writes
+# ~/.config/quickshell/colors.json from the template below, and Haze picks it up live.
+
+[config]
+
+[templates.haze]
+input_path = "~/.config/matugen/templates/haze-colors.json"
+output_path = "~/.config/quickshell/colors.json"
+# Set the wallpaper with a hook, for example with awww:
+# post_hook = "awww img '{{image}}' --transition-type fade"

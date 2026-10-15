@@ -1,0 +1,16 @@
+# nix
+result
+result-*
+.direnv/
+.envrc
+
+# quickshell / qt
+*.qmlc
+*.jsc
+.qmlls.ini
+
+# editor / os
+.vscode/
+.idea/
+*.swp
+.DS_Store
