@@ -763,12 +763,20 @@ PanelWindow {
                                                         border.width: field.activeFocus ? 2 : 0
                                                         border.color: Look.primary
 
+                                                        // click anywhere on the pill to focus the field
+                                                        MouseArea {
+                                                            anchors.fill: parent
+                                                            cursorShape: Qt.IBeamCursor
+                                                            onClicked: field.forceActiveFocus()
+                                                        }
+
                                                         TextInput {
                                                             id: field
-                                                            anchors.fill: parent
+                                                            anchors.left: parent.left
                                                             anchors.leftMargin: 16
+                                                            anchors.right: parent.right
                                                             anchors.rightMargin: 16
-                                                            verticalAlignment: TextInput.AlignVCenter
+                                                            anchors.verticalCenter: parent.verticalCenter
                                                             color: Look.fg
                                                             selectionColor: Look.primary
                                                             selectedTextColor: Look.primaryFg
