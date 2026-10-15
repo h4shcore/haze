@@ -6,6 +6,7 @@ import qs.services
 // The hover-expanded control center, bento style:
 //   [ 2x2 toggle tiles ][ vol ][ bri ]
 //   [ caffeine ][ power profile       ]
+//   [ system monitor card             ]
 //   [ now-playing card                ]
 //   [ shortcut strip                  ]
 // `shown` drives the staggered reveal.
@@ -132,6 +133,19 @@ Item {
                     on: PowerProfile.profile !== "balanced"
                     onClicked: PowerProfile.cycle()
                 }
+            }
+        }
+
+        // ── system monitor ──
+        Reveal {
+            Layout.fillWidth: true
+            visible: Settings.cfg.ccShowSysMon
+            shown: root.shown
+            delay: 40
+
+            SysMonCard {
+                width: parent.width
+                shown: root.shown
             }
         }
 

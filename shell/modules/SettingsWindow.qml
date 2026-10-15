@@ -94,6 +94,7 @@ PanelWindow {
             { title: "Control center", items: [
                 { key: "ccWidth", type: "int", label: "Width", hint: "How wide the notch opens", min: 340, max: 520, step: 10, unit: " px" },
                 { key: "ccShowMedia", type: "bool", label: "Now playing card" },
+                { key: "ccShowSysMon", type: "bool", label: "System monitor card", hint: "CPU, RAM and temperature" },
                 { key: "ccShowShortcuts", type: "bool", label: "Shortcut strip", hint: "Launcher, clipboard, wallpapers, capture, power" }
             ] }
         ] },

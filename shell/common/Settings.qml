@@ -38,6 +38,7 @@ Singleton {
         // control center
         ccWidth: 420,
         ccShowMedia: true,
+        ccShowSysMon: true,
         ccShowShortcuts: true,
         // colors (matugen, used the next time a wallpaper is applied)
         matugenScheme: "scheme-smart",
