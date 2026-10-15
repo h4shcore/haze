@@ -5,8 +5,7 @@ import qs.services
 
 // The hover-expanded control center, bento style:
 //   [ 2x2 toggle tiles ][ vol ][ bri ]
-//   [ caffeine ][ power profile       ]
-//   [ system monitor card             ]
+//   [ system monitor line             ]
 //   [ now-playing card                ]
 //   [ shortcut strip                  ]
 // `shown` drives the staggered reveal.
@@ -103,39 +102,6 @@ Item {
             }
         }
 
-        // ── caffeine + power profile ──
-        Reveal {
-            Layout.fillWidth: true
-            shown: root.shown
-            delay: 25
-
-            RowLayout {
-                width: parent.width
-                height: 52
-                spacing: 10
-
-                Tile {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    glyph: "coffee"
-                    title: "Caffeine"
-                    subtitle: Caffeine.active ? "Staying awake" : "Off"
-                    on: Caffeine.active
-                    onClicked: Caffeine.toggle()
-                }
-                Tile {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    visible: PowerProfile.available
-                    glyph: PowerProfile.glyph
-                    title: "Power"
-                    subtitle: PowerProfile.label
-                    on: PowerProfile.profile !== "balanced"
-                    onClicked: PowerProfile.cycle()
-                }
-            }
-        }
-
         // ── system monitor ──
         Reveal {
             Layout.fillWidth: true
@@ -188,6 +154,8 @@ Item {
                             { g: "\uf03e", m: "wall" },
                             { g: "\uf030", m: "cap" },
                             { g: "power_settings_new", m: "power" },
+                            { g: "coffee", m: "caf" },
+                            ...(PowerProfile.available ? [{ g: PowerProfile.glyph, m: "pwr" }] : []),
                             { g: "\uf013", m: "set" }
                         ]
 
@@ -201,8 +169,20 @@ Item {
                                 anchors.centerIn: parent
                                 size: 38
                                 glyph: parent.modelData.g
-                                primary: parent.modelData.m === "set" ? SettingsUi.open : (LauncherState.open && LauncherState.mode === parent.modelData.m)
-                                onClicked: parent.modelData.m === "set" ? SettingsUi.toggle() : LauncherState.toggleMode(parent.modelData.m)
+                                primary: {
+                                    const m = parent.modelData.m;
+                                    if (m === "set") return SettingsUi.open;
+                                    if (m === "caf") return Caffeine.active;
+                                    if (m === "pwr") return PowerProfile.profile !== "balanced";
+                                    return LauncherState.open && LauncherState.mode === m;
+                                }
+                                onClicked: {
+                                    const m = parent.modelData.m;
+                                    if (m === "set") SettingsUi.toggle();
+                                    else if (m === "caf") Caffeine.toggle();
+                                    else if (m === "pwr") PowerProfile.cycle();
+                                    else LauncherState.toggleMode(m);
+                                }
                             }
                         }
                     }
