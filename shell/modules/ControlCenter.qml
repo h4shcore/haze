@@ -5,9 +5,9 @@ import qs.services
 
 // The hover-expanded control center, bento style:
 //   [ 2x2 toggle tiles ][ vol ][ bri ]
-//   [ system monitor line             ]
 //   [ now-playing card                ]
 //   [ shortcut strip                  ]
+// With the system monitor on, a tall panel sits to the right of the whole stack.
 // `shown` drives the staggered reveal.
 Item {
     id: root
@@ -16,12 +16,15 @@ Item {
     readonly property bool busy: vol.pressed || bri.pressed || media.busy
     signal openNotifs
 
-    implicitWidth: Settings.cfg.ccWidth
+    readonly property bool sysOn: Settings.cfg.ccShowSysMon
+    readonly property real sideW: 130
+
+    implicitWidth: Settings.cfg.ccWidth + (sysOn ? sideW + 10 : 0)
     implicitHeight: col.implicitHeight
 
     ColumnLayout {
         id: col
-        width: parent.width
+        width: Settings.cfg.ccWidth
         spacing: 10
 
         // ── toggles + vertical sliders ──
@@ -102,19 +105,6 @@ Item {
             }
         }
 
-        // ── system monitor ──
-        Reveal {
-            Layout.fillWidth: true
-            visible: Settings.cfg.ccShowSysMon
-            shown: root.shown
-            delay: 40
-
-            SysMonCard {
-                width: parent.width
-                shown: root.shown
-            }
-        }
-
         // ── now playing ──
         Reveal {
             Layout.fillWidth: true
@@ -188,6 +178,21 @@ Item {
                     }
                 }
             }
+        }
+    }
+    // ── system monitor, right side ──
+    Reveal {
+        x: Settings.cfg.ccWidth + 10
+        width: root.sideW
+        height: col.implicitHeight
+        visible: root.sysOn
+        shown: root.shown
+        delay: 40
+
+        SysMonCard {
+            width: parent.width
+            height: parent.height
+            shown: root.shown
         }
     }
 }
