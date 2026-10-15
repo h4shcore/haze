@@ -5,8 +5,8 @@ import qs.common
 import qs.services
 
 // Todo list attached to the bottom-left corner of the screen border.
-// Collapsed: "3 left". Hover: the list + an input (click a task to tick it, type to add one).
-// Concave ears blend it into the bottom + left borders.
+// Hidden until the cursor touches the bottom-left corner (Bar sets `edgeHover`), then it slides up.
+// Click a task to tick it, type in the input to add one. Concave ears blend it into the bottom + left borders.
 Item {
     id: root
 
@@ -19,24 +19,19 @@ Item {
     readonly property real rowH: 32
     readonly property int maxRows: 6
 
+    property bool edgeHover: false    // set by the hot corner in Bar.qml
     property bool expanded: false
-    property bool shown: false
     readonly property bool typing: input.activeFocus
-
-    Component.onCompleted: shown = true
 
     // ── geometry ──
     readonly property real headH: Look.pillHeight - t
     readonly property real listH: Todo.items.length === 0 ? 30 : Math.min(Todo.items.length, maxRows) * rowH
-    readonly property real collapsedW: head.implicitWidth + Look.pad * 2 + t
-    readonly property real expandedW: 300 + t
-    property real bodyW: expanded ? expandedW : collapsedW
-    property real bodyH: expanded ? headH + 4 + listH + 8 + 34 + 10 + t : Look.pillHeight
-    property real slide: shown ? 0 : bodyH + 10
+    readonly property real bodyW: 300 + t
+    property real bodyH: headH + 4 + listH + 8 + 34 + 10 + t
+    property real slide: expanded ? 0 : bodyH + 10
 
-    Behavior on bodyW { Anim {} }
-    Behavior on bodyH { Anim { curve: root.expanded ? Look.spring : Look.emphasized } }
-    Behavior on slide { Anim { duration: Look.dur.slow } }
+    Behavior on bodyH { Anim {} }
+    Behavior on slide { Anim { duration: Look.dur.slow; curve: root.expanded ? Look.smooth : Look.emphasized } }
 
     width: bodyW
     height: bodyH
@@ -58,6 +53,15 @@ Item {
             } else {
                 collapse.restart();
             }
+        }
+    }
+
+    onEdgeHoverChanged: {
+        if (edgeHover) {
+            collapse.stop();
+            expanded = true;
+        } else if (!hover.hovered) {
+            collapse.restart();
         }
     }
 

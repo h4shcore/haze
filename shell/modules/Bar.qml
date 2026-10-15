@@ -63,7 +63,8 @@ PanelWindow {
         Region { item: dock }
         Region { item: Settings.cfg.showWorkspaces ? wsDock : null }
         Region { item: Settings.cfg.showTray ? trayDock : null }
-        Region { item: Settings.cfg.showTodo ? todoDock : null }
+        Region { item: Settings.cfg.showTodo ? todoHot : null }
+        Region { item: Settings.cfg.showTodo && todoDock.expanded ? todoDock : null }
         Region { item: launcher }
         Region { item: wallDock }
         Region { item: clipDock }
@@ -158,17 +159,30 @@ PanelWindow {
         }
     }
 
-    // ───────────── corner docks: workspaces (top-left), tray (top-right), todo (bottom-left), toasts (bottom-right) ─────────────
+    // ───────────── corner docks: workspaces (top-left), tray (top-right), todo (bottom-left, hot corner), toasts (bottom-right) ─────────────
     WsDock {
         id: wsDock
         screen: win.screen
         visible: Settings.cfg.showWorkspaces
     }
 
+    // hot corner: touching the bottom-left corner of the screen slides the todo list up
+    Item {
+        id: todoHot
+        x: 0
+        y: win.height - 12
+        width: 12
+        height: 12
+        visible: Settings.cfg.showTodo
+
+        HoverHandler { id: todoHover }
+    }
+
     TodoDock {
         id: todoDock
         screenWidth: win.width
         screenHeight: win.height
+        edgeHover: todoHover.hovered
         visible: Settings.cfg.showTodo
     }
 

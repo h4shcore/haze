@@ -103,7 +103,7 @@ PanelWindow {
                 { key: "showWorkspaces", type: "bool", label: "Workspaces", hint: "Top-left" },
                 { key: "showTray", type: "bool", label: "System tray", hint: "Top-right" },
                 { key: "showToasts", type: "bool", label: "Notification toasts", hint: "Bottom-right popups" },
-                { key: "showTodo", type: "bool", label: "Todo list", hint: "Bottom-left" },
+                { key: "showTodo", type: "bool", label: "Todo list", hint: "Bottom-left, slides up when you touch the corner" },
                 { key: "showOsd", type: "bool", label: "Volume and brightness OSD", hint: "Right edge" }
             ] }
         ] },
