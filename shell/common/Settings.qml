@@ -32,6 +32,8 @@ Singleton {
         borderThickness: 4,
         notchRadius: 16,
         panelRadius: 24,
+        // typeface (any installed font family)
+        fontFamily: "Rubik",
         // control center
         ccWidth: 420,
         ccShowMedia: true,

@@ -50,7 +50,7 @@ Singleton {
     readonly property int reserveTop: pillHeight   // space tiled windows leave at the top (set to pillHeight so the notch never overlaps them)
 
     // ── fonts (Nerd Font gives the icon glyphs too) ──
-    readonly property string font: "Maple Mono NF"
+    readonly property string font: Settings.cfg.fontFamily   // Settings > Appearance > Font
 
     // ── motion (curves are the M3-expressive ones caelestia uses) ──
     readonly property var spring: [0.38, 1.21, 0.22, 1.0, 1, 1]

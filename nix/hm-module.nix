@@ -23,7 +23,7 @@ in
     installFonts = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = "Install Maple Mono NF and Material Symbols, the fonts Haze is designed around.";
+      description = "Install Rubik, Material Symbols and the Nerd Font symbols (icon fallback), the fonts Haze is designed around.";
     };
 
     systemd.enable = lib.mkOption {
@@ -42,8 +42,9 @@ in
       cfg.package
     ]
     ++ lib.optionals cfg.installFonts [
-      pkgs.maple-mono.NF
+      pkgs.rubik
       pkgs.material-symbols
+      pkgs.nerd-fonts.symbols-only
     ];
 
     fonts.fontconfig.enable = lib.mkIf cfg.installFonts true;

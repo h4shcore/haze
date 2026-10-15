@@ -33,6 +33,17 @@ PanelWindow {
         }
     }
 
+    // Curated fonts, only the installed ones are offered. The current value is always listed,
+    // and any family name can be set by hand in haze-settings.json ("fontFamily").
+    readonly property var fontChoices: {
+        const wanted = ["Rubik", "Inter", "Geist", "JetBrains Mono", "Maple Mono NF", "Noto Sans"];
+        const have = Qt.fontFamilies();
+        const out = wanted.filter(f => have.indexOf(f) >= 0).map(f => ({ v: f, l: f }));
+        const cur = Settings.cfg.fontFamily;
+        if (!out.some(o => o.v === cur)) out.unshift({ v: cur, l: cur });
+        return out;
+    }
+
     readonly property var pages: [
         { id: "appearance", label: "Appearance", glyph: "\uf1fc", title: "Appearance", sub: "How the shell is shaped and colored", sections: [
             { title: "Preview", items: [ { type: "preview" } ] },
@@ -40,6 +51,9 @@ PanelWindow {
                 { key: "borderThickness", type: "int", label: "Border thickness", hint: "The frame around the screen", min: 2, max: 10, step: 1, unit: " px" },
                 { key: "notchRadius", type: "int", label: "Notch corners", hint: "Collapsed notch", min: 6, max: 26, step: 1, unit: " px" },
                 { key: "panelRadius", type: "int", label: "Expanded corners", hint: "Control center and calendar", min: 12, max: 36, step: 1, unit: " px" }
+            ] },
+            { title: "Font", items: [
+                { key: "fontFamily", type: "chips", label: "Typeface", hint: "Installed fonts only", options: win.fontChoices }
             ] },
             { title: "Colors", items: [
                 { key: "matugenScheme", type: "chips", label: "Color scheme", hint: "Used the next time a wallpaper is applied", options: [

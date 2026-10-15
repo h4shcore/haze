@@ -25,8 +25,8 @@ a notch that expands when you hover it, and little docks that grow out of the bo
 - Quickshell 0.3 or newer
 - `grim`, `wl-clipboard`, `cliphist`, `wl-screenrec`, `wtype`, `matugen`, `brightnessctl`, `libnotify`,
   `xdg-utils`, and NetworkManager (`nmcli`). The Nix package brings all but NetworkManager along.
-- Fonts: [Maple Mono NF](https://github.com/subframe7536/maple-font) and, optionally,
-  [Material Symbols](https://github.com/google/material-design-icons) (falls back to Nerd Font glyphs)
+- Fonts: [Rubik](https://github.com/googlefonts/rubik) and, optionally,
+  [Material Symbols](https://github.com/google/material-design-icons) (falls back to Nerd Font symbols)
 
 ## Install
 
