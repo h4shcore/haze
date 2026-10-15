@@ -9,7 +9,15 @@ import qs.common
 Singleton {
     id: root
 
-    readonly property string dir: Quickshell.env("HOME") + "/Pictures/wallpapers"
+    // Settings > Appearance > Wallpaper folder (empty = ~/Pictures/wallpapers, leading ~ is expanded)
+    readonly property string dir: {
+        const home = Quickshell.env("HOME");
+        const d = Settings.cfg.wallpaperDir.trim();
+        if (d === "") return home + "/Pictures/wallpapers";
+        if (d === "~") return home;
+        if (d.startsWith("~/")) return home + d.slice(1);
+        return d;
+    }
     readonly property string stateDir: Quickshell.env("HOME") + "/.local/state/quickshell-haze"
     readonly property string scheme: Settings.cfg.matugenScheme      // Settings > Colors
     readonly property real contrast: Settings.cfg.matugenContrast

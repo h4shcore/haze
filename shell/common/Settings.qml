@@ -34,13 +34,17 @@ Singleton {
         panelRadius: 24,
         // typeface (any installed font family)
         fontFamily: "Rubik",
+        extraFonts: "",       // comma-separated families to offer in Settings
         // control center
         ccWidth: 420,
         ccShowMedia: true,
         ccShowShortcuts: true,
         // colors (matugen, used the next time a wallpaper is applied)
         matugenScheme: "scheme-smart",
-        matugenContrast: 0.5
+        matugenContrast: 0.5,
+        accent: "",           // "#rrggbb" overrides the wallpaper accent, empty = from wallpaper
+        // wallpapers
+        wallpaperDir: ""      // empty = ~/Pictures/wallpapers
     })
 
     // overrides loaded from disk

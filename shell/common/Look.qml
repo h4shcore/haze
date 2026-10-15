@@ -12,8 +12,10 @@ Singleton {
     readonly property color surfaceHiest: c.surfaceHiest
     readonly property color fg: c.fg
     readonly property color fgDim: c.fgDim
-    readonly property color primary: c.primary
-    readonly property color primaryFg: c.primaryFg
+    // Settings > Appearance > Accent color: a valid "#rrggbb" replaces the wallpaper-derived accent
+    readonly property bool accentSet: /^#[0-9a-fA-F]{6}$/.test(Settings.cfg.accent)
+    readonly property color primary: accentSet ? Settings.cfg.accent : c.primary
+    readonly property color primaryFg: accentSet ? (Qt.color(Settings.cfg.accent).hslLightness > 0.6 ? "#1b1b1f" : "#ffffff") : c.primaryFg
     readonly property color secondaryContainer: c.secondaryContainer
     readonly property color error: c.error
     readonly property color outline: c.outline

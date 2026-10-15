@@ -12,7 +12,7 @@ import qs.services
 // Esc close · / or Ctrl+F search · Alt+1…4 pages
 //
 // To add an option: add it to Settings.defaults (common/Settings.qml), then add one line to `pages` below.
-//   types: bool · enum (options: [{ v, l }], segmented) · chips (options, wraps) · int / real (min, max, step, unit)
+//   types: bool · enum (options: [{ v, l }], segmented) · chips (options, wraps) · text (placeholder) · int / real (min, max, step, unit)
 //          action (action: id, button: text) · info (mono label) · preview
 PanelWindow {
     id: win
@@ -36,7 +36,9 @@ PanelWindow {
     // Curated fonts, only the installed ones are offered. The current value is always listed,
     // and any family name can be set by hand in haze-settings.json ("fontFamily").
     readonly property var fontChoices: {
-        const wanted = ["Rubik", "Inter", "Geist", "JetBrains Mono", "Maple Mono NF", "Noto Sans"];
+        const extra = Settings.cfg.extraFonts.split(",").map(s => s.trim()).filter(s => s !== "");
+        const wanted = ["Rubik", "Inter", "Geist", "JetBrains Mono", "Maple Mono NF", "Noto Sans"]
+            .concat(extra).filter((f, i, a) => a.indexOf(f) === i);
         const have = Qt.fontFamilies();
         const out = wanted.filter(f => have.indexOf(f) >= 0).map(f => ({ v: f, l: f }));
         const cur = Settings.cfg.fontFamily;
@@ -53,7 +55,11 @@ PanelWindow {
                 { key: "panelRadius", type: "int", label: "Expanded corners", hint: "Control center and calendar", min: 12, max: 36, step: 1, unit: " px" }
             ] },
             { title: "Font", items: [
-                { key: "fontFamily", type: "chips", label: "Typeface", hint: "Installed fonts only", options: win.fontChoices }
+                { key: "fontFamily", type: "chips", label: "Typeface", hint: "Installed fonts only", options: win.fontChoices },
+                { key: "extraFonts", type: "text", label: "More fonts", hint: "Family names to offer above, comma-separated. Press Enter to apply", placeholder: "Outfit, Manrope" }
+            ] },
+            { title: "Wallpaper", items: [
+                { key: "wallpaperDir", type: "text", label: "Wallpaper folder", hint: "Where the picker looks. Empty uses ~/Pictures/wallpapers", placeholder: "~/Pictures/wallpapers" }
             ] },
             { title: "Colors", items: [
                 { key: "matugenScheme", type: "chips", label: "Color scheme", hint: "Used the next time a wallpaper is applied", options: [
@@ -69,6 +75,7 @@ PanelWindow {
                     { v: "scheme-fruit-salad", l: "Fruit salad" }
                 ] },
                 { key: "matugenContrast", type: "real", label: "Contrast", hint: "Lower is softer, higher is punchier", min: -1, max: 1, step: 0.1 },
+                { key: "accent", type: "text", label: "Accent color", hint: "Hex like #ff8a65. Empty follows the wallpaper", placeholder: "#rrggbb" },
                 { type: "action", action: "reapply", label: "Re-apply wallpaper", hint: "Regenerate the colors with these settings", button: "Apply" }
             ] }
         ] },
@@ -563,6 +570,7 @@ PanelWindow {
                                                     case "bool": return cBool;
                                                     case "enum": return cEnum;
                                                     case "chips": return cChips;
+                                                    case "text": return cText;
                                                     case "action": return cAction;
                                                     case "info": return cInfo;
                                                     case "preview": return cPreview;
@@ -734,6 +742,53 @@ PanelWindow {
                                                                         onClicked: Settings.set(row.key, chip.modelData.v)
                                                                     }
                                                                 }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            Component {
+                                                id: cText
+
+                                                SettingRow {
+                                                    label: row.modelData.label
+                                                    hint: row.modelData.hint ?? ""
+
+                                                    Rectangle {
+                                                        implicitWidth: 240
+                                                        implicitHeight: 38
+                                                        radius: 19
+                                                        color: Look.surfaceHiest
+                                                        border.width: field.activeFocus ? 2 : 0
+                                                        border.color: Look.primary
+
+                                                        TextInput {
+                                                            id: field
+                                                            anchors.fill: parent
+                                                            anchors.leftMargin: 16
+                                                            anchors.rightMargin: 16
+                                                            verticalAlignment: TextInput.AlignVCenter
+                                                            color: Look.fg
+                                                            selectionColor: Look.primary
+                                                            selectedTextColor: Look.primaryFg
+                                                            font.family: Look.font
+                                                            font.pixelSize: 13
+                                                            clip: true
+                                                            text: row.val ?? ""
+
+                                                            // Enter or leaving the field saves, Esc reverts
+                                                            onEditingFinished: Settings.set(row.key, text.trim())
+                                                            Keys.onEscapePressed: ev => {
+                                                                text = row.val ?? "";
+                                                                card.forceActiveFocus();
+                                                                ev.accepted = true;
+                                                            }
+
+                                                            Label {
+                                                                visible: field.text === ""
+                                                                text: row.modelData.placeholder ?? ""
+                                                                color: Look.fgDim
                                                             }
                                                         }
                                                     }
