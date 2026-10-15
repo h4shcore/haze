@@ -23,6 +23,7 @@ Singleton {
         showWorkspaces: true,
         showTray: true,
         showToasts: true,
+        showTodo: true,
         showOsd: true,
         // clock
         clock24h: true,

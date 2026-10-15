@@ -55,13 +55,15 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
     WlrLayershell.namespace: "haze"
-    WlrLayershell.keyboardFocus: LauncherState.open && focusedHere ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: LauncherState.open && focusedHere ? WlrKeyboardFocus.Exclusive
+                                : todoDock.expanded ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     mask: Region {
         item: notch
         Region { item: dock }
         Region { item: Settings.cfg.showWorkspaces ? wsDock : null }
         Region { item: Settings.cfg.showTray ? trayDock : null }
+        Region { item: Settings.cfg.showTodo ? todoDock : null }
         Region { item: launcher }
         Region { item: wallDock }
         Region { item: clipDock }
@@ -156,11 +158,18 @@ PanelWindow {
         }
     }
 
-    // ───────────── corner docks: workspaces (top-left), tray (top-right), toasts (bottom-right) ─────────────
+    // ───────────── corner docks: workspaces (top-left), tray (top-right), todo (bottom-left), toasts (bottom-right) ─────────────
     WsDock {
         id: wsDock
         screen: win.screen
         visible: Settings.cfg.showWorkspaces
+    }
+
+    TodoDock {
+        id: todoDock
+        screenWidth: win.width
+        screenHeight: win.height
+        visible: Settings.cfg.showTodo
     }
 
     TrayDock {
