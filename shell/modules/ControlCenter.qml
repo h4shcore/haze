@@ -5,6 +5,7 @@ import qs.services
 
 // The hover-expanded control center, bento style:
 //   [ 2x2 toggle tiles ][ vol ][ bri ]
+//   [ caffeine ][ power profile       ]
 //   [ now-playing card                ]
 //   [ shortcut strip                  ]
 // `shown` drives the staggered reveal.
@@ -97,6 +98,39 @@ Item {
                     glyph: "\uf185"
                     value: Brightness.value
                     onMoved: v => Brightness.set(v)
+                }
+            }
+        }
+
+        // ── caffeine + power profile ──
+        Reveal {
+            Layout.fillWidth: true
+            shown: root.shown
+            delay: 25
+
+            RowLayout {
+                width: parent.width
+                height: 52
+                spacing: 10
+
+                Tile {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    glyph: "coffee"
+                    title: "Caffeine"
+                    subtitle: Caffeine.active ? "Staying awake" : "Off"
+                    on: Caffeine.active
+                    onClicked: Caffeine.toggle()
+                }
+                Tile {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    visible: PowerProfile.available
+                    glyph: PowerProfile.glyph
+                    title: "Power"
+                    subtitle: PowerProfile.label
+                    on: PowerProfile.profile !== "balanced"
+                    onClicked: PowerProfile.cycle()
                 }
             }
         }
