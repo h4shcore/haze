@@ -54,12 +54,15 @@ Singleton {
     // ── fonts (Nerd Font gives the icon glyphs too) ──
     readonly property string font: Settings.cfg.fontFamily   // Settings > Appearance > Font
 
-    // Desktop widgets use a macOS-style stack: your pick first, then SF Pro (if you have it), then
-    // Inter (the closest free match), Helvetica Neue, and finally the shell font. Empty = shell font.
-    readonly property var widgetFamilies: {
-        if (Settings.cfg.widgetFont === "") return [font];
-        return [Settings.cfg.widgetFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", font]
-            .filter((f, i, a) => a.indexOf(f) === i);
+    // Desktop widgets use a macOS-style font: your pick if it's installed, else the first installed of
+    // SF Pro (the real thing), Inter (closest free match) and Helvetica Neue, else the shell font.
+    // Empty setting = shell font.
+    readonly property string widgetFont: {
+        if (Settings.cfg.widgetFont === "") return font;
+        const have = Qt.fontFamilies();
+        const pick = [Settings.cfg.widgetFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue"]
+            .find(f => have.indexOf(f) >= 0);
+        return pick ?? font;
     }
 
     // ── motion (curves are the M3-expressive ones caelestia uses) ──
