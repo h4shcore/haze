@@ -51,6 +51,17 @@ Singleton {
         widgetSysmon: false,
         widgetSysmonX: -1,
         widgetSysmonY: -1,
+        widgetCalendar: false,
+        widgetCalendarX: -1,
+        widgetCalendarY: -1,
+        widgetTodo: false,
+        widgetTodoX: -1,
+        widgetTodoY: -1,
+        widgetWeather: false,
+        widgetWeatherX: -1,
+        widgetWeatherY: -1,
+        weatherFahrenheit: false,
+        weatherLocation: "",   // empty = guessed from your IP
 
         settingsX: 0,         // window offsets from their default spot (drag the title to move)
         settingsY: 0,

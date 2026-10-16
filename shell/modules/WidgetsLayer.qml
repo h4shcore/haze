@@ -14,6 +14,7 @@ PanelWindow {
 
     readonly property bool focusedHere: (Compositor.focusedOutput || screen.name) === screen.name
     readonly property bool any: Settings.cfg.widgetClock || Settings.cfg.widgetMedia || Settings.cfg.widgetSysmon
+        || Settings.cfg.widgetCalendar || Settings.cfg.widgetTodo || Settings.cfg.widgetWeather
 
     anchors {
         top: true
@@ -32,6 +33,9 @@ PanelWindow {
         item: clockW.visible ? clockW : null
         Region { item: mediaW.visible ? mediaW : null }
         Region { item: sysW.visible ? sysW : null }
+        Region { item: calW.visible ? calW : null }
+        Region { item: todoW.visible ? todoW : null }
+        Region { item: weatherW.visible ? weatherW : null }
         Region { item: editBar.visible ? editBar : null }
     }
 
@@ -152,7 +156,7 @@ PanelWindow {
         }
     }
 
-    // ── now playing: the control center's media card ──
+    // ── now playing ──
     DesktopWidget {
         id: mediaW
         name: "Media"
@@ -160,12 +164,11 @@ PanelWindow {
         defaultX: 80
         defaultY: 320
         showWhen: Players.active !== null
-        width: 360
+        width: media.implicitWidth
         height: media.implicitHeight
 
-        MediaCard {
+        WidgetMedia {
             id: media
-            width: parent.width
         }
     }
 
@@ -174,13 +177,58 @@ PanelWindow {
         id: sysW
         name: "Sysmon"
         surface: win.contentItem
-        defaultX: 480
+        defaultX: 560
         defaultY: 320
         width: 280
         height: 150
 
         SysMonRings {
             anchors.fill: parent
+        }
+    }
+
+    // ── weather ──
+    DesktopWidget {
+        id: weatherW
+        name: "Weather"
+        surface: win.contentItem
+        defaultX: win.width - width - 80
+        defaultY: 120
+        width: weather.implicitWidth
+        height: weather.implicitHeight
+
+        WidgetWeather {
+            id: weather
+        }
+    }
+
+    // ── calendar ──
+    DesktopWidget {
+        id: calW
+        name: "Calendar"
+        surface: win.contentItem
+        defaultX: win.width - width - 80
+        defaultY: 360
+        width: cal.implicitWidth
+        height: cal.implicitHeight
+
+        WidgetCalendar {
+            id: cal
+        }
+    }
+
+    // ── todo ──
+    DesktopWidget {
+        id: todoW
+        name: "Todo"
+        surface: win.contentItem
+        defaultX: 80
+        defaultY: win.height - height - 80
+        width: todo.implicitWidth
+        height: todo.implicitHeight
+
+        WidgetTodo {
+            id: todo
         }
     }
 
