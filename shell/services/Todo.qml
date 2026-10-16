@@ -3,13 +3,19 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// Todo list for the bottom-left dock, persisted to ~/.local/state/quickshell-haze/todos.json.
+// Todo list for the floating widget, persisted to ~/.local/state/quickshell-haze/todos.json.
 // Open items first, finished ones sink to the bottom.
 Singleton {
     id: root
 
     readonly property string dir: Quickshell.env("HOME") + "/.local/state/quickshell-haze"
     property bool ready: false
+
+    // floating widget (modules/TodoWidget.qml)
+    property bool open: false
+    function show() { open = true; }
+    function hide() { open = false; }
+    function toggle() { open = !open; }
 
     // [{ t: "text", done: false }, ...]
     readonly property var items: {
