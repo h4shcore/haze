@@ -66,6 +66,15 @@ ShellRoot {
         function hide(): void { SettingsUi.hide(); }
     }
 
+    // qs -c haze ipc call widgets edit
+    IpcHandler {
+        target: "widgets"
+
+        function edit(): void { Widgets.edit(); }
+        function done(): void { Widgets.done(); }
+        function toggle(): void { Widgets.toggle(); }
+    }
+
     // qs -c haze ipc call todo toggle
     IpcHandler {
         target: "todo"

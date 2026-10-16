@@ -51,7 +51,7 @@ Singleton {
         "headphones": "\uf025", "speaker": "\uf028", "keyboard": "\uf11c", "mouse": "\uf245",
         "smartphone": "\uf10b", "computer": "\uf109", "tv": "\uf26c", "sports_esports": "\uf11b",
         "mic_off": "\uf131",
-        "coffee": "\uf0f4", "bolt": "\uf0e7", "eco": "\uf06c", "speed": "\uf0e4"
+        "coffee": "\uf0f4", "bolt": "\uf0e7", "eco": "\uf06c", "speed": "\uf0e4", "widgets": "\uf2d2"
     })
 
     readonly property var toNerd: {

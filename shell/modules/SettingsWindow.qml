@@ -119,6 +119,17 @@ PanelWindow {
                 { key: "showOsd", type: "bool", label: "Volume and brightness OSD", hint: "Right edge" }
             ] }
         ] },
+        { id: "widgets", label: "Widgets", glyph: "widgets", title: "Widgets", sub: "Desktop widgets that sit on the wallpaper", sections: [
+            { title: "Show", items: [
+                { key: "widgetClock", type: "bool", label: "Clock", hint: "Big time and date" },
+                { key: "widgetMedia", type: "bool", label: "Now playing", hint: "Appears while a player is open" },
+                { key: "widgetSysmon", type: "bool", label: "System monitor", hint: "CPU, memory and temperature" }
+            ] },
+            { title: "Layout", items: [
+                { type: "action", action: "editWidgets", label: "Move widgets", hint: "Drag them where you want, then press Done (or Esc)", button: "Edit" },
+                { type: "action", action: "resetWidgets", label: "Reset positions", hint: "Back to the default spots", button: "Reset" }
+            ] }
+        ] },
         { id: "about", label: "About", glyph: "\uf05a", title: "About", sub: "Where things live and how to control the shell", sections: [
             { title: "Files", items: [
                 { type: "info", label: "settings", hint: "~/.config/quickshell/haze-settings.json" },
@@ -130,6 +141,8 @@ PanelWindow {
                 { type: "info", label: "wallpaper toggle", hint: "Wallpaper picker" },
                 { type: "info", label: "capture toggle | region | window | record", hint: "Screenshots and recording" },
                 { type: "info", label: "power toggle", hint: "Lock, log out, suspend, reboot, shut down" },
+                { type: "info", label: "widgets edit | done", hint: "Move the desktop widgets" },
+                { type: "info", label: "todo toggle", hint: "Floating todo list" },
                 { type: "info", label: "settings toggle", hint: "This window" }
             ] },
             { title: "Danger zone", items: [
@@ -162,7 +175,12 @@ PanelWindow {
     property string armed: ""
 
     function runAction(id) {
-        if (id === "reapply") {
+        if (id === "editWidgets") {
+            Widgets.edit();
+            SettingsUi.hide();
+        } else if (id === "resetWidgets") {
+            Settings.reset(["widgetClockX", "widgetClockY", "widgetMediaX", "widgetMediaY", "widgetSysmonX", "widgetSysmonY"]);
+        } else if (id === "reapply") {
             if (Wallpaper.current !== "") Wallpaper.apply(Wallpaper.current);
         } else if (id === "resetAll") {
             if (armed !== id) {

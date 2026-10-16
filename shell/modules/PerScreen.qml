@@ -10,6 +10,7 @@ Scope {
     CaptureOverlay { screen: root.modelData }
     SettingsWindow { screen: root.modelData }
     TodoWidget { screen: root.modelData }
+    WidgetsLayer { screen: root.modelData }
 
     Exclusion { screen: root.modelData; edge: "top"; size: Look.reserveTop }
     Exclusion { screen: root.modelData; edge: "bottom"; size: Look.border }

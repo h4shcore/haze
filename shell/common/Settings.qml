@@ -42,6 +42,16 @@ Singleton {
         ccShowSysMon: true,
         ccShowShortcuts: true,
 
+        widgetClock: false,   // desktop widgets (modules/WidgetsLayer.qml); X / Y = -1 means the default spot
+        widgetClockX: -1,
+        widgetClockY: -1,
+        widgetMedia: false,
+        widgetMediaX: -1,
+        widgetMediaY: -1,
+        widgetSysmon: false,
+        widgetSysmonX: -1,
+        widgetSysmonY: -1,
+
         settingsX: 0,         // window offsets from their default spot (drag the title to move)
         settingsY: 0,
         todoX: 0,
