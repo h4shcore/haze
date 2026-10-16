@@ -8,6 +8,7 @@ import qs.services
 // Now-playing widget. Two sizes (Settings → Widgets → Size):
 //   small  (160×160): just the album art filling the card, tap it to play / pause
 //   medium (340×160): cover on the left; title, artist, hairline progress and controls on the right
+// With no player open it shows a pulsing music-note skeleton (or hides, if Settings → Widgets says so).
 Item {
     id: root
 
@@ -15,6 +16,16 @@ Item {
 
     readonly property MprisPlayer p: Players.active
     readonly property bool playing: p?.isPlaying ?? false
+    readonly property bool idle: p === null
+
+    // shared pulse for the skeleton placeholders
+    property real pulse: 1
+    SequentialAnimation on pulse {
+        loops: Animation.Infinite
+        running: root.visible && root.idle
+        NumberAnimation { to: 0.35; duration: 1100; easing.type: Easing.InOutSine }
+        NumberAnimation { to: 1; duration: 1100; easing.type: Easing.InOutSine }
+    }
 
     // position isn't pushed by MPRIS, so poke it while playing and visible
     Timer {
@@ -75,6 +86,7 @@ Item {
             text: "\uf001"
             font.pixelSize: 40
             color: Look.fgDim
+            opacity: root.idle ? root.pulse : 1
         }
         // paused hint
         InkIcon {
@@ -122,6 +134,7 @@ Item {
                 text: "\uf001"
                 font.pixelSize: 30
                 color: Look.fgDim
+                opacity: root.idle ? root.pulse : 1
             }
         }
 
@@ -132,6 +145,7 @@ Item {
 
             WLabel {
                 Layout.fillWidth: true
+                visible: !root.idle
                 text: (root.p?.identity ?? "").toUpperCase()
                 color: Look.primary
                 font.pixelSize: 10
@@ -141,15 +155,46 @@ Item {
             WLabel {
                 Layout.fillWidth: true
                 Layout.topMargin: 4
+                visible: !root.idle
                 text: root.p?.trackTitle || "Nothing playing"
                 font.pixelSize: 17
                 font.weight: Font.Medium
             }
             WLabel {
                 Layout.fillWidth: true
+                visible: !root.idle
                 text: root.p?.trackArtist ?? ""
                 color: Look.fgDim
                 font.pixelSize: 13
+            }
+
+            // skeleton: stand-ins for source, title and artist while nothing is playing
+            Rectangle {
+                Layout.preferredWidth: 44
+                Layout.preferredHeight: 8
+                Layout.topMargin: 2
+                visible: root.idle
+                radius: 4
+                color: Qt.alpha(Look.primary, 0.5)
+                opacity: root.pulse
+            }
+            Rectangle {
+                Layout.preferredWidth: 130
+                Layout.preferredHeight: 14
+                Layout.topMargin: 10
+                visible: root.idle
+                radius: 7
+                color: Qt.alpha(Look.fg, 0.16)
+                opacity: root.pulse
+            }
+            Rectangle {
+                Layout.preferredWidth: 88
+                Layout.preferredHeight: 11
+                Layout.topMargin: 8
+                visible: root.idle
+                radius: 5.5
+                color: Qt.alpha(Look.fg, 0.1)
+                opacity: root.pulse
             }
 
             Item { Layout.fillHeight: true }

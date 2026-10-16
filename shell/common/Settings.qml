@@ -49,6 +49,7 @@ Singleton {
         widgetMedia: false,
         widgetMediaX: -1,
         widgetMediaY: -1,
+        widgetMediaHideIdle: false,  // true = hide the Now playing widget while no player is open (false = skeleton)
         widgetMediaSize: "medium",   // "small" (album art only, 160x160) or "medium" (340x160)
         widgetFont: "SF Pro Display",   // macOS-style typeface for the desktop widgets; falls back to Inter, then the shell font
         widgetSysmon: false,

@@ -133,7 +133,8 @@ PanelWindow {
         { id: "widgets", label: "Widgets", glyph: "widgets", title: "Widgets", sub: "Desktop widgets that sit on the wallpaper", sections: [
             { title: "Show", items: [
                 { key: "widgetClock", type: "bool", label: "Clock", hint: "Big time and date" },
-                { key: "widgetMedia", type: "bool", label: "Now playing", hint: "Appears while a player is open" },
+                { key: "widgetMedia", type: "bool", label: "Now playing", hint: "Album art and controls for the active player" },
+                { key: "widgetMediaHideIdle", type: "bool", label: "Hide when nothing plays", hint: "Off shows a music-note skeleton instead" },
                 { key: "widgetSysmon", type: "bool", label: "System monitor", hint: "CPU, memory and temperature" },
                 { key: "widgetTodo", type: "bool", label: "Todo list", hint: "Your tasks, click to tick" }
             ] },

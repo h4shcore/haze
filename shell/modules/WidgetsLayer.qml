@@ -89,7 +89,7 @@ PanelWindow {
         }
     }
 
-    // ── now playing (small: album only · medium: full player) ──
+    // ── now playing (small: album only · medium: full player; skeleton while idle unless hidden in Settings) ──
     DesktopWidget {
         id: mediaW
         name: "Media"
@@ -97,7 +97,7 @@ PanelWindow {
         surface: win.contentItem
         defaultX: 60
         defaultY: 280
-        showWhen: Players.active !== null
+        showWhen: !Settings.cfg.widgetMediaHideIdle || Players.active !== null
 
         WidgetMedia {
             anchors.fill: parent
