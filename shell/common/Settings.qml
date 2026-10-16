@@ -41,6 +41,11 @@ Singleton {
         ccShowMedia: true,
         ccShowSysMon: true,
         ccShowShortcuts: true,
+
+        settingsX: 0,         // window offsets from their default spot (drag the title to move)
+        settingsY: 0,
+        todoX: 0,
+        todoY: 0,
         // colors (matugen, used the next time a wallpaper is applied)
         matugenScheme: "scheme-smart",
         matugenContrast: 0.5,

@@ -9,12 +9,25 @@ import qs.services
 // Floating todo list, bottom-left of the focused screen. Not attached to anything and invisible
 // until opened:  qs -p shell ipc call todo toggle   (bind it in niri).
 // Click a task to tick it · type + Enter to add · Esc or ✕ to close.
+// Drag the header to move it (double-click the header to put it back).
 PanelWindow {
     id: win
 
     readonly property bool focusedHere: (Compositor.focusedOutput || screen.name) === screen.name
     property bool latched: false
     readonly property bool open: Todo.open && latched && Settings.cfg.showTodo
+
+    // dragging: offsets from the default bottom-left spot, saved on drop
+    property bool dragging: false
+    property real dragX: 0
+    property real dragY: 0
+    readonly property real offX: dragging ? dragX : Settings.cfg.todoX
+    readonly property real offY: dragging ? dragY : Settings.cfg.todoY
+    readonly property real margin: 28
+    readonly property real baseY: height - card.height - margin
+
+    function clampX(v) { return Math.max(80 - card.width - margin, Math.min(width - 80 - margin, v)); }
+    function clampY(v) { return Math.max(-baseY, Math.min(height - 60 - baseY, v)); }
 
     readonly property real rowH: 32
     readonly property int maxRows: 6
@@ -36,17 +49,13 @@ PanelWindow {
         onTriggered: input.forceActiveFocus()
     }
 
-    // fixed-size surface so the layer never resizes mid-animation; only the card is clickable
+    // full-screen transparent surface so the card can be dragged anywhere; only the card is clickable
     anchors {
-        left: true
+        top: true
         bottom: true
+        left: true
+        right: true
     }
-    margins {
-        left: 20
-        bottom: 20
-    }
-    implicitWidth: 320
-    implicitHeight: 330
     visible: open || card.opacity > 0.01
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
@@ -58,14 +67,9 @@ PanelWindow {
     FocusScope {
         id: card
 
-        anchors {
-            left: parent.left
-            right: parent.right
-            bottom: parent.bottom
-            leftMargin: 8
-            rightMargin: 8
-            bottomMargin: 8
-        }
+        width: 304
+        x: win.margin + win.clampX(win.offX)
+        y: win.baseY + win.clampY(win.offY)
         height: 14 + 30 + 6 + win.listH + 8 + 34 + 14
         opacity: win.open ? 1 : 0
         scale: win.open ? 1 : 0.94
@@ -97,6 +101,34 @@ PanelWindow {
         }
 
         MouseArea { anchors.fill: parent }
+
+        // drag the header to move the widget
+        DragHandle {
+            x: 0
+            y: 0
+            width: parent.width
+            height: 14 + 30 + 6
+            reference: win.contentItem
+            onMoved: (dx, dy) => {
+                if (!win.dragging) {
+                    win.dragX = Settings.cfg.todoX;
+                    win.dragY = Settings.cfg.todoY;
+                    win.dragging = true;
+                }
+                win.dragX = win.clampX(win.dragX + dx);
+                win.dragY = win.clampY(win.dragY + dy);
+            }
+            onDropped: {
+                if (!win.dragging) return;
+                Settings.set("todoX", win.dragX);
+                Settings.set("todoY", win.dragY);
+                win.dragging = false;
+            }
+            onReset: {
+                Settings.set("todoX", 0);
+                Settings.set("todoY", 0);
+            }
+        }
 
         // ── header ──
         RowLayout {

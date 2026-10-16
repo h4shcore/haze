@@ -9,7 +9,7 @@ import qs.services
 // Floating settings app: sidebar + search + grouped cards, everything applies live and is saved to
 // ~/.config/quickshell/haze-settings.json.
 //
-// Esc close · / or Ctrl+F search · Alt+1…4 pages
+// Esc close · / or Ctrl+F search · Alt+1…4 pages · drag the title to move (double-click it to re-center)
 //
 // To add an option: add it to Settings.defaults (common/Settings.qml), then add one line to `pages` below.
 //   types: bool · enum (options: [{ v, l }], segmented) · chips (options, wraps) · text (placeholder) · int / real (min, max, step, unit)
@@ -20,6 +20,18 @@ PanelWindow {
     readonly property bool focusedHere: (Compositor.focusedOutput || screen.name) === screen.name
     property bool latched: false
     readonly property bool open: SettingsUi.open && latched
+
+    // dragging: offsets from the centered spot, saved on drop
+    property bool dragging: false
+    property real dragX: 0
+    property real dragY: 0
+    readonly property real offX: dragging ? dragX : Settings.cfg.settingsX
+    readonly property real offY: dragging ? dragY : Settings.cfg.settingsY
+    readonly property real homeX: (width - card.width) / 2
+    readonly property real homeY: (height - card.height) / 2
+
+    function clampX(v) { return Math.max(120 - card.width - homeX, Math.min(width - 120 - homeX, v)); }
+    function clampY(v) { return Math.max(-homeY, Math.min(height - 80 - homeY, v)); }
 
     Connections {
         target: SettingsUi
@@ -208,7 +220,8 @@ PanelWindow {
     FocusScope {
         id: card
 
-        anchors.centerIn: parent
+        x: win.homeX + win.clampX(win.offX)
+        y: win.homeY + win.clampY(win.offY)
         width: Math.min(1000, parent.width - 120)
         height: Math.min(660, parent.height - 120)
         opacity: win.open ? 1 : 0
@@ -295,6 +308,34 @@ PanelWindow {
                         color: Look.fgDim
                         font.pixelSize: 11
                     }
+                }
+            }
+
+            // drag the title to move the window
+            DragHandle {
+                x: 0
+                y: 0
+                width: parent.width
+                height: 76
+                reference: win.contentItem
+                onMoved: (dx, dy) => {
+                    if (!win.dragging) {
+                        win.dragX = Settings.cfg.settingsX;
+                        win.dragY = Settings.cfg.settingsY;
+                        win.dragging = true;
+                    }
+                    win.dragX = win.clampX(win.dragX + dx);
+                    win.dragY = win.clampY(win.dragY + dy);
+                }
+                onDropped: {
+                    if (!win.dragging) return;
+                    Settings.set("settingsX", win.dragX);
+                    Settings.set("settingsY", win.dragY);
+                    win.dragging = false;
+                }
+                onReset: {
+                    Settings.set("settingsX", 0);
+                    Settings.set("settingsY", 0);
                 }
             }
 
