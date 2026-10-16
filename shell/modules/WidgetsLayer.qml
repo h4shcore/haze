@@ -8,7 +8,7 @@ import qs.services
 
 // Desktop widgets: a transparent surface above the wallpaper and below your windows.
 // Only the widgets catch clicks. Edit mode (Settings → Widgets, or `ipc call widgets edit`) lifts the
-// layer above windows so you can drag them; Done / Esc puts it back.
+// layer above windows so you can drag them (they snap to a grid); Done / Esc puts it back.
 PanelWindow {
     id: win
 
@@ -41,13 +41,48 @@ PanelWindow {
         Keys.onEscapePressed: Widgets.done()
     }
 
-    // ── clock: big time + date straight on the wallpaper ──
+    // ── edit mode backdrop: dim + grid dots (visual only, not in the input mask) ──
+    Rectangle {
+        anchors.fill: parent
+        color: Qt.rgba(0, 0, 0, 0.4)
+        opacity: Widgets.editing ? 1 : 0
+        visible: opacity > 0
+        Behavior on opacity { Anim { duration: 250; curve: Look.standard } }
+    }
+
+    Canvas {
+        id: grid
+
+        anchors.fill: parent
+        opacity: Widgets.editing ? 1 : 0
+        visible: opacity > 0
+        Behavior on opacity { Anim { duration: 250; curve: Look.standard } }
+
+        onVisibleChanged: if (visible) requestPaint()
+        onWidthChanged: requestPaint()
+        onHeightChanged: requestPaint()
+
+        onPaint: {
+            const ctx = getContext("2d");
+            ctx.reset();
+            ctx.fillStyle = Qt.alpha(Look.fg, 0.28);
+            const g = Widgets.grid;
+            for (let x = g; x < width; x += g)
+                for (let y = g; y < height; y += g) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+        }
+    }
+
+    // ── clock: big, light, minimal ──
     DesktopWidget {
         id: clockW
         name: "Clock"
         surface: win.contentItem
-        defaultX: 90
-        defaultY: 110
+        defaultX: 80
+        defaultY: 120
         width: clockCol.implicitWidth
         height: clockCol.implicitHeight
 
@@ -58,27 +93,60 @@ PanelWindow {
 
         ColumnLayout {
             id: clockCol
-            spacing: -6
+            spacing: 4
 
             layer.enabled: true
             layer.effect: MultiEffect {
                 shadowEnabled: true
                 shadowColor: "black"
-                shadowOpacity: 0.45
-                shadowBlur: 0.7
-                shadowVerticalOffset: 4
+                shadowOpacity: 0.35
+                shadowBlur: 0.8
+                shadowVerticalOffset: 3
+            }
+
+            RowLayout {
+                spacing: 2
+
+                Label {
+                    text: Qt.formatDateTime(clock.date, Settings.cfg.clock24h ? "HH" : "h")
+                    font.pixelSize: 124
+                    font.weight: Font.Light
+                }
+                Label {
+                    Layout.bottomMargin: 10
+                    text: ":"
+                    font.pixelSize: 124
+                    font.weight: Font.Light
+                    color: Look.primary
+
+                    SequentialAnimation on opacity {
+                        loops: Animation.Infinite
+                        running: clockW.visible
+                        NumberAnimation { to: 0.35; duration: 1200; easing.type: Easing.InOutSine }
+                        NumberAnimation { to: 1; duration: 1200; easing.type: Easing.InOutSine }
+                    }
+                }
+                Label {
+                    text: Qt.formatDateTime(clock.date, "mm")
+                    font.pixelSize: 124
+                    font.weight: Font.Light
+                }
+                Label {
+                    Layout.alignment: Qt.AlignTop
+                    Layout.topMargin: 26
+                    Layout.leftMargin: 6
+                    visible: !Settings.cfg.clock24h
+                    text: Qt.formatDateTime(clock.date, "AP")
+                    font.pixelSize: 22
+                    color: Look.fgDim
+                }
             }
 
             Label {
-                text: Qt.formatDateTime(clock.date, Settings.cfg.clock24h
-                    ? (Settings.cfg.clockSeconds ? "HH:mm:ss" : "HH:mm")
-                    : (Settings.cfg.clockSeconds ? "h:mm:ss AP" : "h:mm AP"))
-                font.pixelSize: 96
-                font.bold: true
-            }
-            Label {
-                text: Qt.formatDateTime(clock.date, "dddd, d MMMM")
-                font.pixelSize: 22
+                Layout.leftMargin: 6
+                text: Qt.formatDateTime(clock.date, "dddd  ·  d MMMM").toUpperCase()
+                font.pixelSize: 14
+                font.letterSpacing: 4
                 color: Look.fgDim
             }
         }
@@ -89,10 +157,10 @@ PanelWindow {
         id: mediaW
         name: "Media"
         surface: win.contentItem
-        defaultX: 90
-        defaultY: 330
+        defaultX: 80
+        defaultY: 320
         showWhen: Players.active !== null
-        width: 340
+        width: 360
         height: media.implicitHeight
 
         MediaCard {
@@ -106,14 +174,13 @@ PanelWindow {
         id: sysW
         name: "Sysmon"
         surface: win.contentItem
-        defaultX: 460
-        defaultY: 110
-        width: 150
-        height: 210
+        defaultX: 480
+        defaultY: 320
+        width: 280
+        height: 150
 
-        SysMonCard {
+        SysMonRings {
             anchors.fill: parent
-            shown: true
         }
     }
 
@@ -137,7 +204,7 @@ PanelWindow {
             spacing: 14
 
             Label {
-                text: "Drag widgets to move them · double-click one to reset"
+                text: "Drag to move · snaps to the grid · double-click a widget to reset"
                 font.pixelSize: 12
                 color: Look.fgDim
             }
