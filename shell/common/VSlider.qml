@@ -11,6 +11,7 @@ Item {
     readonly property bool pressed: area.pressed
     signal moved(real value)
     signal iconClicked
+    signal menuRequested     // right-click anywhere on the pill
 
     implicitWidth: 52
     implicitHeight: 160
@@ -61,5 +62,11 @@ Item {
         width: parent.width
         height: parent.width
         onClicked: root.iconClicked()
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        acceptedButtons: Qt.RightButton
+        onClicked: root.menuRequested()
     }
 }

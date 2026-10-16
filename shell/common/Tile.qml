@@ -8,7 +8,9 @@ Rectangle {
     property string title
     property string subtitle
     property bool on: false
+    property bool hasMenu: false     // shows a › button; right-click works too
     signal clicked
+    signal menuRequested
 
     implicitHeight: 52
     radius: 18
@@ -22,7 +24,7 @@ Rectangle {
         anchors {
             fill: parent
             leftMargin: 14
-            rightMargin: 12
+            rightMargin: root.hasMenu ? 32 : 12
         }
         spacing: 10
 
@@ -56,6 +58,32 @@ Rectangle {
         id: mouse
         anchors.fill: parent
         hoverEnabled: true
-        onClicked: root.clicked()
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        onClicked: m => {
+            if (m.button === Qt.RightButton && root.hasMenu) root.menuRequested();
+            else root.clicked();
+        }
+    }
+
+    MouseArea {
+        id: chevron
+        visible: root.hasMenu
+        anchors {
+            right: parent.right
+            top: parent.top
+            bottom: parent.bottom
+        }
+        width: 34
+        hoverEnabled: true
+        onClicked: root.menuRequested()
+
+        InkIcon {
+            anchors.centerIn: parent
+            text: "\uf105"
+            pixelSize: 16
+            box: 22
+            opacity: chevron.containsMouse ? 1 : 0.7
+            color: root.on ? Look.primaryFg : Look.fg
+        }
     }
 }

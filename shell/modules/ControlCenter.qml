@@ -7,25 +7,33 @@ import qs.services
 //   [ 2x2 toggle tiles ][ vol ][ bri ]
 //   [ now-playing card                ]
 //   [ shortcut strip                  ]
+// The › on the Wi-Fi / Bluetooth tiles (or right-clicking them / the volume slider) swaps the stack for a sub-menu.
 // With the system monitor on, a tall panel sits to the right of the whole stack.
 // `shown` drives the staggered reveal.
 Item {
     id: root
 
     property bool shown: false
-    readonly property bool busy: vol.pressed || bri.pressed || media.busy
+    property string page: ""          // "" | "wifi" | "bt" | "audio"
+    readonly property bool wantKeys: page === "wifi" && wifiMenu.asking
+    readonly property bool busy: vol.pressed || bri.pressed || media.busy || wantKeys
     signal openNotifs
 
     readonly property bool sysOn: Settings.cfg.ccShowSysMon
     readonly property real sideW: 130
 
     implicitWidth: Settings.cfg.ccWidth + (sysOn ? sideW + 10 : 0)
-    implicitHeight: col.implicitHeight
+    implicitHeight: page !== "" ? Math.max(col.implicitHeight, 280) : col.implicitHeight
+
+    onShownChanged: if (!shown) page = ""
 
     ColumnLayout {
         id: col
         width: Settings.cfg.ccWidth
         spacing: 10
+        opacity: root.page === "" ? 1 : 0
+        enabled: root.page === ""
+        Behavior on opacity { Anim { duration: 180; curve: Look.standard } }
 
         // ── toggles + vertical sliders ──
         Reveal {
@@ -52,7 +60,9 @@ Item {
                         title: "Wi-Fi"
                         subtitle: !Network.enabled ? "Off" : (Network.ssid || "Not connected")
                         on: Network.enabled
+                        hasMenu: true
                         onClicked: Network.toggle()
+                        onMenuRequested: root.page = "wifi"
                     }
                     Tile {
                         Layout.fillWidth: true
@@ -62,7 +72,9 @@ Item {
                         title: "Bluetooth"
                         subtitle: Bt.label
                         on: Bt.enabled
+                        hasMenu: true
                         onClicked: Bt.toggle()
+                        onMenuRequested: root.page = "bt"
                     }
                     Tile {
                         Layout.fillWidth: true
@@ -92,6 +104,7 @@ Item {
                     value: Audio.muted ? 0 : Audio.volume
                     onMoved: v => Audio.setVolume(v)
                     onIconClicked: Audio.toggleMute()
+                    onMenuRequested: root.page = "audio"
                 }
 
                 VSlider {
@@ -180,11 +193,34 @@ Item {
             }
         }
     }
+    // ── sub-menus (replace the stack) ──
+    WifiMenu {
+        id: wifiMenu
+        width: Settings.cfg.ccWidth
+        height: root.implicitHeight
+        active: root.page === "wifi"
+        onBack: root.page = ""
+    }
+
+    BluetoothMenu {
+        width: Settings.cfg.ccWidth
+        height: root.implicitHeight
+        active: root.page === "bt"
+        onBack: root.page = ""
+    }
+
+    AudioMenu {
+        width: Settings.cfg.ccWidth
+        height: root.implicitHeight
+        active: root.page === "audio"
+        onBack: root.page = ""
+    }
+
     // ── system monitor, right side ──
     Reveal {
         x: Settings.cfg.ccWidth + 10
         width: root.sideW
-        height: col.implicitHeight
+        height: root.implicitHeight
         visible: root.sysOn
         shown: root.shown
         delay: 40

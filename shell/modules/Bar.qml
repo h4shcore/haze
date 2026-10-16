@@ -55,7 +55,7 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
     WlrLayershell.namespace: "haze"
-    WlrLayershell.keyboardFocus: LauncherState.open && focusedHere ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: (LauncherState.open || cc.wantKeys) && focusedHere ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     mask: Region {
         item: notch
