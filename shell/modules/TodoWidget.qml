@@ -185,7 +185,7 @@ PanelWindow {
                     id: rm
                     anchors.fill: parent
                     hoverEnabled: true
-                    onClicked: Todo.toggle(row.index)
+                    onClicked: Todo.tick(row.index)
                 }
 
                 RowLayout {

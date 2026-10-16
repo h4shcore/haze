@@ -48,7 +48,7 @@ Singleton {
         save(list);
     }
 
-    function toggle(i) {
+    function tick(i) {
         const list = copy();
         if (i < 0 || i >= list.length) return;
         const item = list.splice(i, 1)[0];
