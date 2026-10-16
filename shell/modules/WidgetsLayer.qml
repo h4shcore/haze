@@ -1,20 +1,20 @@
 import QtQuick
-import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import qs.common
 import qs.services
 
-// Desktop widgets: a transparent surface above the wallpaper and below your windows.
-// Only the widgets catch clicks. Edit mode (Settings → Widgets, or `ipc call widgets edit`) lifts the
-// layer above windows so you can drag them (they snap to a grid); Done / Esc puts it back.
+// Desktop widgets, macOS style: solid rounded cards in small / medium / large sizes on a transparent
+// surface above the wallpaper and below your windows. Only the cards catch clicks.
+// Edit mode (Settings → Widgets, or `ipc call widgets edit`) lifts the layer above windows, dims the
+// screen and shows a grid; drag a card and it snaps. Done / Esc puts it back.
 PanelWindow {
     id: win
 
     readonly property bool focusedHere: (Compositor.focusedOutput || screen.name) === screen.name
-    readonly property bool any: Settings.cfg.widgetClock || Settings.cfg.widgetMedia || Settings.cfg.widgetSysmon
-        || Settings.cfg.widgetCalendar || Settings.cfg.widgetTodo || Settings.cfg.widgetWeather
+    readonly property bool any: Settings.cfg.widgetClock || Settings.cfg.widgetMedia
+        || Settings.cfg.widgetSysmon || Settings.cfg.widgetTodo
 
     anchors {
         top: true
@@ -33,9 +33,7 @@ PanelWindow {
         item: clockW.visible ? clockW : null
         Region { item: mediaW.visible ? mediaW : null }
         Region { item: sysW.visible ? sysW : null }
-        Region { item: calW.visible ? calW : null }
         Region { item: todoW.visible ? todoW : null }
-        Region { item: weatherW.visible ? weatherW : null }
         Region { item: editBar.visible ? editBar : null }
     }
 
@@ -55,8 +53,6 @@ PanelWindow {
     }
 
     Canvas {
-        id: grid
-
         anchors.fill: parent
         opacity: Widgets.editing ? 1 : 0
         visible: opacity > 0
@@ -69,166 +65,72 @@ PanelWindow {
         onPaint: {
             const ctx = getContext("2d");
             ctx.reset();
-            ctx.fillStyle = Qt.alpha(Look.fg, 0.28);
+            ctx.fillStyle = Qt.alpha(Look.fg, 0.22);
             const g = Widgets.grid;
             for (let x = g; x < width; x += g)
-                for (let y = g; y < height; y += g) {
-                    ctx.beginPath();
-                    ctx.arc(x, y, 1.5, 0, Math.PI * 2);
-                    ctx.fill();
-                }
+                for (let y = g; y < height; y += g)
+                    ctx.fillRect(x - 0.75, y - 0.75, 1.5, 1.5);
         }
     }
 
-    // ── clock: big, light, minimal ──
+    // ── clock (medium) ──
     DesktopWidget {
         id: clockW
         name: "Clock"
+        size: "medium"
         surface: win.contentItem
-        defaultX: 80
-        defaultY: 120
-        width: clockCol.implicitWidth
-        height: clockCol.implicitHeight
+        defaultX: 60
+        defaultY: 100
 
-        SystemClock {
-            id: clock
-            precision: Settings.cfg.clockSeconds ? SystemClock.Seconds : SystemClock.Minutes
-        }
-
-        ColumnLayout {
-            id: clockCol
-            spacing: 4
-
-            layer.enabled: true
-            layer.effect: MultiEffect {
-                shadowEnabled: true
-                shadowColor: "black"
-                shadowOpacity: 0.35
-                shadowBlur: 0.8
-                shadowVerticalOffset: 3
-            }
-
-            RowLayout {
-                spacing: 2
-
-                Label {
-                    text: Qt.formatDateTime(clock.date, Settings.cfg.clock24h ? "HH" : "h")
-                    font.pixelSize: 124
-                    font.weight: Font.Light
-                }
-                Label {
-                    Layout.bottomMargin: 10
-                    text: ":"
-                    font.pixelSize: 124
-                    font.weight: Font.Light
-                    color: Look.primary
-
-                    SequentialAnimation on opacity {
-                        loops: Animation.Infinite
-                        running: clockW.visible
-                        NumberAnimation { to: 0.35; duration: 1200; easing.type: Easing.InOutSine }
-                        NumberAnimation { to: 1; duration: 1200; easing.type: Easing.InOutSine }
-                    }
-                }
-                Label {
-                    text: Qt.formatDateTime(clock.date, "mm")
-                    font.pixelSize: 124
-                    font.weight: Font.Light
-                }
-                Label {
-                    Layout.alignment: Qt.AlignTop
-                    Layout.topMargin: 26
-                    Layout.leftMargin: 6
-                    visible: !Settings.cfg.clock24h
-                    text: Qt.formatDateTime(clock.date, "AP")
-                    font.pixelSize: 22
-                    color: Look.fgDim
-                }
-            }
-
-            Label {
-                Layout.leftMargin: 6
-                text: Qt.formatDateTime(clock.date, "dddd  ·  d MMMM").toUpperCase()
-                font.pixelSize: 14
-                font.letterSpacing: 4
-                color: Look.fgDim
-            }
+        WidgetClock {
+            anchors.fill: parent
+            anchors.margins: 18
         }
     }
 
-    // ── now playing ──
+    // ── now playing (medium) ──
     DesktopWidget {
         id: mediaW
         name: "Media"
+        size: "medium"
         surface: win.contentItem
-        defaultX: 80
-        defaultY: 320
+        defaultX: 60
+        defaultY: 280
         showWhen: Players.active !== null
-        width: media.implicitWidth
-        height: media.implicitHeight
 
         WidgetMedia {
-            id: media
+            anchors.fill: parent
+            anchors.margins: 18
         }
     }
 
-    // ── system monitor ──
+    // ── system monitor (small) ──
     DesktopWidget {
         id: sysW
         name: "Sysmon"
+        size: "small"
         surface: win.contentItem
-        defaultX: 560
-        defaultY: 320
-        width: 280
-        height: 150
+        defaultX: 420
+        defaultY: 100
 
         SysMonRings {
             anchors.fill: parent
+            anchors.margins: 18
         }
     }
 
-    // ── weather ──
-    DesktopWidget {
-        id: weatherW
-        name: "Weather"
-        surface: win.contentItem
-        defaultX: win.width - width - 80
-        defaultY: 120
-        width: weather.implicitWidth
-        height: weather.implicitHeight
-
-        WidgetWeather {
-            id: weather
-        }
-    }
-
-    // ── calendar ──
-    DesktopWidget {
-        id: calW
-        name: "Calendar"
-        surface: win.contentItem
-        defaultX: win.width - width - 80
-        defaultY: 360
-        width: cal.implicitWidth
-        height: cal.implicitHeight
-
-        WidgetCalendar {
-            id: cal
-        }
-    }
-
-    // ── todo ──
+    // ── todo (large) ──
     DesktopWidget {
         id: todoW
         name: "Todo"
+        size: "large"
         surface: win.contentItem
-        defaultX: 80
-        defaultY: win.height - height - 80
-        width: todo.implicitWidth
-        height: todo.implicitHeight
+        defaultX: Math.round((win.width - width - 60) / 20) * 20
+        defaultY: 100
 
         WidgetTodo {
-            id: todo
+            anchors.fill: parent
+            anchors.margins: 20
         }
     }
 

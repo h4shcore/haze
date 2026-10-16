@@ -1,20 +1,16 @@
 import QtQuick
-import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell.Widgets
 import Quickshell.Services.Mpris
 import qs.common
 import qs.services
 
-// Desktop now-playing: big art, light type, a hairline progress bar and three quiet controls.
+// Now-playing widget (medium): cover on the left; title, artist, hairline progress and controls on the right.
 Item {
     id: root
 
     readonly property MprisPlayer p: Players.active
     readonly property bool playing: p?.isPlaying ?? false
-
-    implicitWidth: 420
-    implicitHeight: 128
 
     // position isn't pushed by MPRIS, so poke it while playing and visible
     Timer {
@@ -31,8 +27,8 @@ Item {
         property bool usable: true
         signal clicked
 
-        implicitWidth: 30
-        implicitHeight: 30
+        implicitWidth: 28
+        implicitHeight: 28
         opacity: usable ? (mouse.containsMouse ? 1 : 0.85) : 0.3
         scale: mouse.pressed ? 0.9 : 1
         Behavior on scale { Anim { duration: Look.dur.fast } }
@@ -40,8 +36,8 @@ Item {
         InkIcon {
             anchors.centerIn: parent
             text: ctl.glyph
-            pixelSize: 16
-            box: 26
+            pixelSize: 15
+            box: 24
             color: Look.fg
         }
         MouseArea {
@@ -54,22 +50,13 @@ Item {
 
     RowLayout {
         anchors.fill: parent
-        spacing: 20
-
-        layer.enabled: true
-        layer.effect: MultiEffect {
-            shadowEnabled: true
-            shadowColor: "black"
-            shadowOpacity: 0.35
-            shadowBlur: 0.8
-            shadowVerticalOffset: 3
-        }
+        spacing: 16
 
         ClippingRectangle {
-            Layout.preferredWidth: 128
-            Layout.preferredHeight: 128
-            radius: 30
-            color: Look.surfaceHi
+            Layout.preferredWidth: root.height
+            Layout.preferredHeight: root.height
+            radius: 20
+            color: Look.surfaceHiest
             scale: root.playing ? 1 : 0.95
             Behavior on scale { Anim {} }
 
@@ -87,42 +74,44 @@ Item {
                 anchors.centerIn: parent
                 visible: art.status !== Image.Ready
                 text: "\uf001"
-                font.pixelSize: 34
+                font.pixelSize: 30
                 color: Look.fgDim
             }
         }
 
         ColumnLayout {
             Layout.fillWidth: true
-            Layout.alignment: Qt.AlignVCenter
-            spacing: 2
+            Layout.fillHeight: true
+            spacing: 0
 
             Label {
                 Layout.fillWidth: true
                 text: (root.p?.identity ?? "").toUpperCase()
                 color: Look.primary
-                font.pixelSize: 11
+                font.pixelSize: 10
                 font.bold: true
-                font.letterSpacing: 3
+                font.letterSpacing: 2
             }
             Label {
                 Layout.fillWidth: true
+                Layout.topMargin: 4
                 text: root.p?.trackTitle || "Nothing playing"
-                font.pixelSize: 24
+                font.pixelSize: 17
                 font.weight: Font.Medium
             }
             Label {
                 Layout.fillWidth: true
                 text: root.p?.trackArtist ?? ""
                 color: Look.fgDim
-                font.pixelSize: 15
+                font.pixelSize: 13
             }
+
+            Item { Layout.fillHeight: true }
 
             // hairline progress, click to seek
             Item {
                 Layout.fillWidth: true
-                Layout.topMargin: 10
-                Layout.preferredHeight: 12
+                Layout.preferredHeight: 10
 
                 readonly property real frac: root.p && root.p.length > 0 ? Math.min(1, root.p.position / root.p.length) : 0
 
@@ -131,7 +120,7 @@ Item {
                     width: parent.width
                     height: 3
                     radius: 2
-                    color: Qt.alpha(Look.fg, 0.2)
+                    color: Qt.alpha(Look.fg, 0.15)
 
                     Rectangle {
                         width: parent.width * parent.parent.frac
@@ -149,8 +138,9 @@ Item {
             }
 
             RowLayout {
+                Layout.alignment: Qt.AlignHCenter
                 Layout.topMargin: 4
-                spacing: 18
+                spacing: 14
 
                 Ctl {
                     glyph: "\uf048"
@@ -160,9 +150,9 @@ Item {
 
                 // play/pause: circle when paused, rounded square when playing
                 Rectangle {
-                    Layout.preferredWidth: 42
-                    Layout.preferredHeight: 42
-                    radius: root.playing ? 15 : 21
+                    Layout.preferredWidth: 38
+                    Layout.preferredHeight: 38
+                    radius: root.playing ? 13 : 19
                     color: Look.primary
                     opacity: (root.p?.canTogglePlaying ?? false) ? 1 : 0.4
                     scale: playMouse.pressed ? 0.92 : 1
@@ -172,8 +162,8 @@ Item {
                     InkIcon {
                         anchors.centerIn: parent
                         text: root.playing ? "\uf04c" : "\uf04b"
-                        pixelSize: 16
-                        box: 24
+                        pixelSize: 15
+                        box: 22
                         color: Look.primaryFg
                     }
                     MouseArea {

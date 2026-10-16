@@ -124,13 +124,7 @@ PanelWindow {
                 { key: "widgetClock", type: "bool", label: "Clock", hint: "Big time and date" },
                 { key: "widgetMedia", type: "bool", label: "Now playing", hint: "Appears while a player is open" },
                 { key: "widgetSysmon", type: "bool", label: "System monitor", hint: "CPU, memory and temperature" },
-                { key: "widgetCalendar", type: "bool", label: "Calendar", hint: "Current month" },
-                { key: "widgetTodo", type: "bool", label: "Todo list", hint: "Your tasks, click to tick" },
-                { key: "widgetWeather", type: "bool", label: "Weather", hint: "From wttr.in" }
-            ] },
-            { title: "Weather", items: [
-                { key: "weatherFahrenheit", type: "bool", label: "Fahrenheit" },
-                { key: "weatherLocation", type: "text", label: "Location", hint: "City name. Empty guesses from your IP. Press Enter to apply", placeholder: "Nagpur" }
+                { key: "widgetTodo", type: "bool", label: "Todo list", hint: "Your tasks, click to tick" }
             ] },
             { title: "Layout", items: [
                 { type: "action", action: "editWidgets", label: "Move widgets", hint: "Drag them where you want, then press Done (or Esc)", button: "Edit" },
@@ -187,7 +181,7 @@ PanelWindow {
             SettingsUi.hide();
         } else if (id === "resetWidgets") {
             Settings.reset(["widgetClockX", "widgetClockY", "widgetMediaX", "widgetMediaY", "widgetSysmonX", "widgetSysmonY",
-                "widgetCalendarX", "widgetCalendarY", "widgetTodoX", "widgetTodoY", "widgetWeatherX", "widgetWeatherY"]);
+                "widgetTodoX", "widgetTodoY"]);
         } else if (id === "reapply") {
             if (Wallpaper.current !== "") Wallpaper.apply(Wallpaper.current);
         } else if (id === "resetAll") {

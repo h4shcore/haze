@@ -1,50 +1,47 @@
 import QtQuick
-import QtQuick.Effects
 import QtQuick.Layouts
 import qs.common
 import qs.services
 
-// Desktop todo list: your tasks as quiet type. Click one to tick it (add tasks with the floating
-// widget: ipc call todo toggle).
+// Todo widget (large): your tasks, click one to tick it. Add tasks with the floating widget
+// (haze ipc call todo toggle) — desktop widgets can't take keyboard input.
 Item {
     id: root
 
-    implicitWidth: 300
-    implicitHeight: col.implicitHeight
+    readonly property int maxRows: 8
 
     ColumnLayout {
-        id: col
-        width: parent.width
-        spacing: 2
+        anchors.fill: parent
+        spacing: 0
 
-        layer.enabled: true
-        layer.effect: MultiEffect {
-            shadowEnabled: true
-            shadowColor: "black"
-            shadowOpacity: 0.35
-            shadowBlur: 0.8
-            shadowVerticalOffset: 3
-        }
-
-        Label {
-            Layout.leftMargin: 4
+        RowLayout {
+            Layout.fillWidth: true
             Layout.bottomMargin: 8
-            text: "TODO" + (Todo.remaining > 0 ? "  ·  " + Todo.remaining + " LEFT" : "")
-            font.pixelSize: 13
-            font.letterSpacing: 4
-            color: Look.fgDim
+
+            Label {
+                text: "Todo"
+                font.pixelSize: 18
+                font.weight: Font.Medium
+            }
+            Item { Layout.fillWidth: true }
+            Label {
+                visible: Todo.items.length > 0
+                text: Todo.remaining === 0 ? "All done" : Todo.remaining + " left"
+                font.pixelSize: 12
+                color: Todo.remaining === 0 ? Look.primary : Look.fgDim
+            }
         }
 
         Label {
-            Layout.leftMargin: 4
+            Layout.topMargin: 6
             visible: Todo.items.length === 0
             text: "Nothing to do"
-            font.pixelSize: 15
+            font.pixelSize: 14
             color: Look.fgDim
         }
 
         Repeater {
-            model: Todo.items.slice(0, 7)
+            model: Todo.items.slice(0, root.maxRows)
 
             Item {
                 id: row
@@ -54,7 +51,16 @@ Item {
                 readonly property bool done: !!modelData.done
 
                 Layout.fillWidth: true
-                Layout.preferredHeight: 32
+                Layout.preferredHeight: 33
+
+                // hairline between rows
+                Rectangle {
+                    anchors.bottom: parent.bottom
+                    width: parent.width
+                    height: 1
+                    color: Qt.alpha(Look.fg, 0.07)
+                    visible: row.index < Math.min(Todo.items.length, root.maxRows) - 1
+                }
 
                 MouseArea {
                     id: mouse
@@ -65,7 +71,6 @@ Item {
 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 4
                     spacing: 12
                     opacity: row.done ? 0.45 : (mouse.containsMouse ? 1 : 0.92)
 
@@ -75,7 +80,7 @@ Item {
                         radius: 8
                         color: row.done ? Look.primary : "transparent"
                         border.width: row.done ? 0 : 2
-                        border.color: Look.fg
+                        border.color: Look.fgDim
                         Behavior on color { ColorAnimation { duration: 150 } }
 
                         InkIcon {
@@ -90,18 +95,18 @@ Item {
                     Label {
                         Layout.fillWidth: true
                         text: row.modelData.t
-                        font.pixelSize: 16
+                        font.pixelSize: 14
                         font.strikeout: row.done
                     }
                 }
             }
         }
 
+        Item { Layout.fillHeight: true }
+
         Label {
-            Layout.leftMargin: 4
-            Layout.topMargin: 4
-            visible: Todo.items.length > 7
-            text: "+" + (Todo.items.length - 7) + " more"
+            visible: Todo.items.length > root.maxRows
+            text: "+" + (Todo.items.length - root.maxRows) + " more"
             font.pixelSize: 12
             color: Look.fgDim
         }
