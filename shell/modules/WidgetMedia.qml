@@ -5,9 +5,13 @@ import Quickshell.Services.Mpris
 import qs.common
 import qs.services
 
-// Now-playing widget (medium): cover on the left; title, artist, hairline progress and controls on the right.
+// Now-playing widget. Two sizes (Settings → Widgets → Size):
+//   small  (160×160): just the album art filling the card, tap it to play / pause
+//   medium (340×160): cover on the left; title, artist, hairline progress and controls on the right
 Item {
     id: root
+
+    property bool compact: false
 
     readonly property MprisPlayer p: Players.active
     readonly property bool playing: p?.isPlaying ?? false
@@ -48,9 +52,51 @@ Item {
         }
     }
 
+    // ── small: only the album ──
+    ClippingRectangle {
+        anchors.fill: parent
+        visible: root.compact
+        radius: 27          // card radius (28) minus its 1px border
+        color: Look.surfaceHiest
+
+        Image {
+            id: artSmall
+            anchors.fill: parent
+            source: root.p?.trackArtUrl ?? ""
+            sourceSize: Qt.size(480, 480)
+            fillMode: Image.PreserveAspectCrop
+            asynchronous: true
+            opacity: status === Image.Ready ? (root.playing ? 1 : 0.55) : 0
+            Behavior on opacity { Anim { duration: 300; curve: Look.standard } }
+        }
+        Icon {
+            anchors.centerIn: parent
+            visible: artSmall.status !== Image.Ready
+            text: "\uf001"
+            font.pixelSize: 40
+            color: Look.fgDim
+        }
+        // paused hint
+        InkIcon {
+            anchors.centerIn: parent
+            visible: artSmall.status === Image.Ready && !root.playing
+            text: "\uf04b"
+            pixelSize: 26
+            box: 36
+            color: Look.fg
+        }
+        MouseArea {
+            anchors.fill: parent
+            enabled: root.p?.canTogglePlaying ?? false
+            onClicked: if (root.p) root.p.togglePlaying()
+        }
+    }
+
+    // ── medium: cover, title, artist, progress, controls ──
     RowLayout {
         anchors.fill: parent
         spacing: 16
+        visible: !root.compact
 
         ClippingRectangle {
             Layout.preferredWidth: root.height
@@ -84,7 +130,7 @@ Item {
             Layout.fillHeight: true
             spacing: 0
 
-            Label {
+            WLabel {
                 Layout.fillWidth: true
                 text: (root.p?.identity ?? "").toUpperCase()
                 color: Look.primary
@@ -92,14 +138,14 @@ Item {
                 font.bold: true
                 font.letterSpacing: 2
             }
-            Label {
+            WLabel {
                 Layout.fillWidth: true
                 Layout.topMargin: 4
                 text: root.p?.trackTitle || "Nothing playing"
                 font.pixelSize: 17
                 font.weight: Font.Medium
             }
-            Label {
+            WLabel {
                 Layout.fillWidth: true
                 text: root.p?.trackArtist ?? ""
                 color: Look.fgDim

@@ -54,6 +54,14 @@ Singleton {
     // ── fonts (Nerd Font gives the icon glyphs too) ──
     readonly property string font: Settings.cfg.fontFamily   // Settings > Appearance > Font
 
+    // Desktop widgets use a macOS-style stack: your pick first, then SF Pro (if you have it), then
+    // Inter (the closest free match), Helvetica Neue, and finally the shell font. Empty = shell font.
+    readonly property var widgetFamilies: {
+        if (Settings.cfg.widgetFont === "") return [font];
+        return [Settings.cfg.widgetFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", font]
+            .filter((f, i, a) => a.indexOf(f) === i);
+    }
+
     // ── motion (curves are the M3-expressive ones caelestia uses) ──
     readonly property var spring: [0.38, 1.21, 0.22, 1.0, 1, 1]
     readonly property var smooth: [0.16, 1, 0.3, 1, 1, 1]   // soft expo-out: fast start, long glide, no overshoot

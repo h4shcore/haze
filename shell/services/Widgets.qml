@@ -6,6 +6,7 @@ import Quickshell
 // The widgets themselves live in modules/WidgetsLayer.qml.
 //
 // Sizes follow macOS: small 160×160, medium 340×160 (two smalls + the gap), large 340×340.
+// Clock and Now playing can be switched between small and medium in Settings → Widgets.
 // The grid equals the gap, so snapped widgets tile neatly.
 Singleton {
     property bool editing: false

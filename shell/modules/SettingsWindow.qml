@@ -58,6 +58,17 @@ PanelWindow {
         return out;
     }
 
+    // Widget typefaces: the macOS-style ones first, only installed families are offered
+    readonly property var widgetFontChoices: {
+        const have = Qt.fontFamilies();
+        const out = ["SF Pro Display", "Inter", "Helvetica Neue", "Geist", "Rubik"]
+            .filter(f => have.indexOf(f) >= 0).map(f => ({ v: f, l: f }));
+        out.push({ v: "", l: "Same as shell" });
+        const cur = Settings.cfg.widgetFont;
+        if (cur !== "" && !out.some(o => o.v === cur)) out.unshift({ v: cur, l: cur });
+        return out;
+    }
+
     readonly property var pages: [
         { id: "appearance", label: "Appearance", glyph: "\uf1fc", title: "Appearance", sub: "How the shell is shaped and colored", sections: [
             { title: "Preview", items: [ { type: "preview" } ] },
@@ -125,6 +136,19 @@ PanelWindow {
                 { key: "widgetMedia", type: "bool", label: "Now playing", hint: "Appears while a player is open" },
                 { key: "widgetSysmon", type: "bool", label: "System monitor", hint: "CPU, memory and temperature" },
                 { key: "widgetTodo", type: "bool", label: "Todo list", hint: "Your tasks, click to tick" }
+            ] },
+            { title: "Size", items: [
+                { key: "widgetClockSize", type: "enum", label: "Clock size", hint: "Small is a square showing only the time", options: [
+                    { v: "small", l: "Small" },
+                    { v: "medium", l: "Medium" }
+                ] },
+                { key: "widgetMediaSize", type: "enum", label: "Now playing size", hint: "Small is a square showing only the album art", options: [
+                    { v: "small", l: "Small" },
+                    { v: "medium", l: "Medium" }
+                ] }
+            ] },
+            { title: "Font", items: [
+                { key: "widgetFont", type: "chips", label: "Widget typeface", hint: "SF Pro is the macOS font (install it yourself). Inter is the closest free match", options: win.widgetFontChoices }
             ] },
             { title: "Layout", items: [
                 { type: "action", action: "editWidgets", label: "Move widgets", hint: "Drag them where you want, then press Done (or Esc)", button: "Edit" },

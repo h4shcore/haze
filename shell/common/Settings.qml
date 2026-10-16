@@ -45,9 +45,12 @@ Singleton {
         widgetClock: false,   // desktop widgets (modules/WidgetsLayer.qml); X / Y = -1 means the default spot
         widgetClockX: -1,
         widgetClockY: -1,
+        widgetClockSize: "medium",   // "small" (time only, 160x160) or "medium" (340x160)
         widgetMedia: false,
         widgetMediaX: -1,
         widgetMediaY: -1,
+        widgetMediaSize: "medium",   // "small" (album art only, 160x160) or "medium" (340x160)
+        widgetFont: "SF Pro Display",   // macOS-style typeface for the desktop widgets; falls back to Inter, then the shell font
         widgetSysmon: false,
         widgetSysmonX: -1,
         widgetSysmonY: -1,

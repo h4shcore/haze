@@ -23,7 +23,7 @@ in
     installFonts = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = "Install Rubik, Material Symbols and the Nerd Font symbols (icon fallback), the fonts Haze is designed around.";
+      description = "Install Rubik, Inter, Material Symbols and the Nerd Font symbols (icon fallback), the fonts Haze is designed around.";
     };
 
     systemd.enable = lib.mkOption {
@@ -43,6 +43,7 @@ in
     ]
     ++ lib.optionals cfg.installFonts [
       pkgs.rubik
+      pkgs.inter # closest free match to the macOS font, used by the desktop widgets
       pkgs.material-symbols
       pkgs.nerd-fonts.symbols-only
     ];

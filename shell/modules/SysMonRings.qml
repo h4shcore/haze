@@ -65,7 +65,7 @@ Item {
                 }
             }
 
-            Label {
+            WLabel {
                 anchors.centerIn: parent
                 text: Math.round(SysMon.cpu * 100) + "%"
                 font.pixelSize: 14
@@ -73,7 +73,7 @@ Item {
             }
         }
 
-        Label {
+        WLabel {
             Layout.alignment: Qt.AlignHCenter
             text: SysMon.ramUsedGb.toFixed(1) + " GB" + (SysMon.temp >= 0 ? "  ·  " + Math.round(SysMon.temp) + "°" : "")
             font.pixelSize: 12

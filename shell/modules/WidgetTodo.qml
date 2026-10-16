@@ -18,13 +18,13 @@ Item {
             Layout.fillWidth: true
             Layout.bottomMargin: 8
 
-            Label {
+            WLabel {
                 text: "Todo"
                 font.pixelSize: 18
                 font.weight: Font.Medium
             }
             Item { Layout.fillWidth: true }
-            Label {
+            WLabel {
                 visible: Todo.items.length > 0
                 text: Todo.remaining === 0 ? "All done" : Todo.remaining + " left"
                 font.pixelSize: 12
@@ -32,7 +32,7 @@ Item {
             }
         }
 
-        Label {
+        WLabel {
             Layout.topMargin: 6
             visible: Todo.items.length === 0
             text: "Nothing to do"
@@ -92,7 +92,7 @@ Item {
                             color: Look.primaryFg
                         }
                     }
-                    Label {
+                    WLabel {
                         Layout.fillWidth: true
                         text: row.modelData.t
                         font.pixelSize: 14
@@ -104,7 +104,7 @@ Item {
 
         Item { Layout.fillHeight: true }
 
-        Label {
+        WLabel {
             visible: Todo.items.length > root.maxRows
             text: "+" + (Todo.items.length - root.maxRows) + " more"
             font.pixelSize: 12

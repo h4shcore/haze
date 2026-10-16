@@ -73,26 +73,27 @@ PanelWindow {
         }
     }
 
-    // ── clock (medium) ──
+    // ── clock (small: time only · medium: time + date) ──
     DesktopWidget {
         id: clockW
         name: "Clock"
-        size: "medium"
+        size: Settings.cfg.widgetClockSize === "small" ? "small" : "medium"
         surface: win.contentItem
         defaultX: 60
         defaultY: 100
 
         WidgetClock {
             anchors.fill: parent
-            anchors.margins: 18
+            anchors.margins: clockW.size === "small" ? 8 : 18
+            compact: clockW.size === "small"
         }
     }
 
-    // ── now playing (medium) ──
+    // ── now playing (small: album only · medium: full player) ──
     DesktopWidget {
         id: mediaW
         name: "Media"
-        size: "medium"
+        size: Settings.cfg.widgetMediaSize === "small" ? "small" : "medium"
         surface: win.contentItem
         defaultX: 60
         defaultY: 280
@@ -100,7 +101,8 @@ PanelWindow {
 
         WidgetMedia {
             anchors.fill: parent
-            anchors.margins: 18
+            anchors.margins: mediaW.size === "small" ? 1 : 18   // small: art fills the card, inside its border
+            compact: mediaW.size === "small"
         }
     }
 
