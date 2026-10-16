@@ -17,6 +17,31 @@ Singleton {
     readonly property var outputs: Pipewire.nodes.values.filter(n => n.audio && n.isSink && !n.isStream)
     readonly property var inputs: Pipewire.nodes.values.filter(n => n.audio && !n.isSink && !n.isStream)
 
+    // apps currently playing sound (playback streams)
+    readonly property var apps: Pipewire.nodes.values.filter(n =>
+        n.isStream && n.audio && (n.properties["media.class"] ?? "") === "Stream/Output/Audio")
+
+    function appName(n) {
+        const p = n.properties;
+        return p["application.name"] || p["application.process.binary"] || n.nickname || n.name;
+    }
+
+    // what the app is playing, when it says (track / tab title); hidden if it just repeats the name
+    function appTitle(n) {
+        const t = n.properties["media.name"] ?? "";
+        return t === appName(n) ? "" : t;
+    }
+
+    function setNodeVolume(n, v) {
+        if (!n?.audio) return;
+        n.audio.muted = false;
+        n.audio.volume = Math.max(0, Math.min(1, v));
+    }
+
+    function toggleNodeMute(n) {
+        if (n?.audio) n.audio.muted = !n.audio.muted;
+    }
+
     function label(n) { return n.description || n.nickname || n.name; }
 
     function setOutput(n) { Pipewire.preferredDefaultAudioSink = n; }

@@ -3,7 +3,7 @@ import QtQuick.Layouts
 import qs.common
 import qs.services
 
-// Audio sub-menu of the control center: pick the output and input device, mute the mic.
+// Audio sub-menu of the control center: pick the output and input device, per-app volume, mute the mic.
 Item {
     id: root
 
@@ -18,6 +18,70 @@ Item {
     function icon(n, input) {
         if (input) return "\uf130";
         return /head(phone|set)|buds|airpods/i.test(Audio.label(n)) ? "headphones" : "\uf028";
+    }
+
+    // one playing app: name, what it plays, mute button + volume slider
+    component AppRow: Rectangle {
+        id: app
+
+        required property var node
+        readonly property bool muted: node.audio?.muted ?? false
+        readonly property real vol: node.audio?.volume ?? 0
+
+        Layout.fillWidth: true
+        implicitHeight: 62
+        radius: 16
+        color: Look.surfaceHi
+
+        ColumnLayout {
+            anchors {
+                fill: parent
+                leftMargin: 14
+                rightMargin: 12
+                topMargin: 8
+                bottomMargin: 6
+            }
+            spacing: 0
+
+            RowLayout {
+                Layout.fillWidth: true
+
+                Label {
+                    Layout.fillWidth: true
+                    text: Audio.appName(app.node)
+                    font.pixelSize: 13
+                    font.bold: true
+                }
+                Label {
+                    text: app.muted ? "Muted" : Math.round(app.vol * 100) + "%"
+                    font.pixelSize: 11
+                    color: Look.fgDim
+                }
+            }
+            Label {
+                Layout.fillWidth: true
+                visible: text !== ""
+                text: Audio.appTitle(app.node)
+                font.pixelSize: 11
+                color: Look.fgDim
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 6
+
+                IconButton {
+                    glyph: app.muted ? "\uf026" : "\uf028"
+                    size: 26
+                    primary: app.muted
+                    onClicked: Audio.toggleNodeMute(app.node)
+                }
+                Slider {
+                    Layout.fillWidth: true
+                    value: app.muted ? 0 : app.vol
+                    onMoved: v => Audio.setNodeVolume(app.node, v)
+                }
+            }
+        }
     }
 
     function level(muted, vol) { return muted ? "Muted" : Math.round(vol * 100) + "%"; }
@@ -71,6 +135,29 @@ Item {
                         subtitle: current ? root.level(Audio.muted, Audio.volume) : ""
                         selected: current
                         onClicked: Audio.setOutput(modelData)
+                    }
+                }
+
+                Label {
+                    Layout.topMargin: 8
+                    Layout.leftMargin: 6
+                    text: "Apps"
+                    font.pixelSize: 11
+                    color: Look.fgDim
+                }
+                Label {
+                    Layout.leftMargin: 6
+                    visible: Audio.apps.length === 0
+                    text: "Nothing playing"
+                    font.pixelSize: 12
+                    color: Look.fgDim
+                }
+                Repeater {
+                    model: Audio.apps
+
+                    AppRow {
+                        required property var modelData
+                        node: modelData
                     }
                 }
 
