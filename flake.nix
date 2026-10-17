@@ -1,5 +1,5 @@
 {
-  description = "Haze: a Quickshell shell for Niri";
+  description = "Haze: a Quickshell shell for Niri and Hyprland";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

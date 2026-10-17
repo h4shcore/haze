@@ -1,6 +1,7 @@
 # Haze
 
-A [Quickshell](https://quickshell.org) shell for [Niri](https://github.com/YaLTeR/niri): a frame around your screen,
+A [Quickshell](https://quickshell.org) shell for [Niri](https://github.com/YaLTeR/niri) and
+[Hyprland](https://hypr.land): a frame around your screen,
 a notch that expands when you hover it, and little docks that grow out of the border.
 
 <!-- screenshots: put images in docs/screenshots and link them here -->
@@ -21,7 +22,7 @@ a notch that expands when you hover it, and little docks that grow out of the bo
 
 ## Requirements
 
-- Niri 26.04 or newer
+- Niri 26.04 or newer, or a recent Hyprland (Haze picks the right one on its own)
 - Quickshell 0.3 or newer
 - `grim`, `wl-clipboard`, `cliphist`, `wl-screenrec`, `wtype`, `matugen`, `brightnessctl`, `libnotify`,
   `xdg-utils`, and NetworkManager (`nmcli`). The Nix package brings all but NetworkManager along.
@@ -75,6 +76,52 @@ binds {
 ```
 
 For a manual install replace `haze` in the binds with `qs -c haze`.
+
+## Hyprland setup
+
+Hyprland 0.55 and newer is configured in Lua, in `~/.config/hypr/hyprland.lua`:
+
+```lua
+hl.on("hyprland.start", function()
+    hl.exec_cmd("haze")   -- or "qs -c haze" for a manual install
+end)
+
+hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("haze ipc call launcher toggle"))
+hl.bind("SUPER + PERIOD", hl.dsp.exec_cmd("haze ipc call launcher emoji"))
+hl.bind("SUPER + V", hl.dsp.exec_cmd("haze ipc call clipboard toggle"))
+hl.bind("SUPER + COMMA", hl.dsp.exec_cmd("haze ipc call settings toggle"))
+hl.bind("Print", hl.dsp.exec_cmd("haze ipc call capture toggle"))
+```
+
+<details>
+<summary>Still on the old <code>hyprland.conf</code>?</summary>
+
+```ini
+exec-once = haze
+
+bind = SUPER, SPACE, exec, haze ipc call launcher toggle
+bind = SUPER, PERIOD, exec, haze ipc call launcher emoji
+bind = SUPER, V, exec, haze ipc call clipboard toggle
+bind = SUPER, COMMA, exec, haze ipc call settings toggle
+bind = , Print, exec, haze ipc call capture toggle
+```
+
+</details>
+
+Haze reserves its frame with layer-shell exclusive zones, so tiled windows stay inside it. Tune the gaps and
+corner rounding to taste, for example `hl.config({ general = { gaps_out = 10 }, decoration = { rounding = 12 } })`.
+
+- Haze detects Hyprland from `HYPRLAND_INSTANCE_SIGNATURE`. To force a compositor, set
+  `HAZE_COMPOSITOR=hyprland` (or `niri`).
+- Haze switches workspaces and logs out through `hyprctl dispatch`. It uses the Lua form
+  (`hl.dsp.focus({ workspace = "3" })`) and falls back to the old one (`workspace 3`) when Hyprland
+  doesn't accept it, so Lua configs, hyprlang configs and 0.55.x all work.
+- The workspace dock shows Hyprland workspaces per monitor, labeled by workspace number. Click to switch,
+  scroll to step through them. Special workspaces are not listed.
+- Window screenshots read the windows on the focused monitor's active workspace through `hyprctl`.
+- If you run Haze as a systemd user service, make sure it can see `HYPRLAND_INSTANCE_SIGNATURE`, for
+  example by adding `hl.exec_cmd("dbus-update-activation-environment --systemd --all")` to the
+  `hyprland.start` hook, or just start Haze from that hook.
 
 ## Colors (matugen)
 

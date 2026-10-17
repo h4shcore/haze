@@ -62,7 +62,7 @@ stdenvNoCC.mkDerivation {
 
   meta = {
     homepage = "https://github.com/h4shcore/haze";
-    description = "A Quickshell shell for Niri";
+    description = "A Quickshell shell for Niri and Hyprland";
     license = lib.licenses.mit;
     mainProgram = "haze";
     platforms = lib.platforms.linux;

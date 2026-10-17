@@ -5,7 +5,7 @@ import Quickshell
 import qs.common
 import qs.services
 
-// Niri workspaces, attached to the top-left corner of the screen border.
+// Workspaces (Niri or Hyprland), attached to the top-left corner of the screen border.
 // Collapsed: current workspace. Hover: every workspace on this monitor (click to switch, scroll to move).
 Item {
     id: root
@@ -62,7 +62,7 @@ Item {
     }
 
     WheelHandler {
-        onWheel: e => Compositor.action([e.angleDelta.y > 0 ? "focus-workspace-up" : "focus-workspace-down"])
+        onWheel: e => Compositor.stepWorkspace(e.angleDelta.y > 0 ? -1 : 1)
     }
 
     // ── body shape (concave ears into the top + left borders) ──
@@ -160,7 +160,7 @@ Item {
                         id: cm
                         anchors.fill: parent
                         hoverEnabled: true
-                        onClicked: Compositor.action(["focus-workspace", String(cell.nw ? cell.nw.idx : cell.index + 1)])
+                        onClicked: Compositor.focusWorkspace(cell.nw, cell.index + 1)
                     }
                 }
             }
