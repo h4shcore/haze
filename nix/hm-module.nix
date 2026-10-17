@@ -11,7 +11,7 @@ let
 in
 {
   options.programs.haze = {
-    enable = lib.mkEnableOption "Haze, a Quickshell shell for Niri";
+    enable = lib.mkEnableOption "Haze, a Quickshell shell for Niri and Hyprland";
 
     package = lib.mkOption {
       type = lib.types.package;
@@ -32,7 +32,9 @@ in
       description = ''
         Run Haze as a systemd user service tied to graphical-session.target.
         Leave this off if you start it from your compositor instead
-        (for example `spawn-at-startup "haze"` in Niri).
+        (for example `spawn-at-startup "haze"` in Niri or `hl.exec_cmd("haze")` in hyprland.lua).
+        Under Hyprland the service needs HYPRLAND_INSTANCE_SIGNATURE in the user manager's
+        environment, which `dbus-update-activation-environment --systemd --all` provides.
       '';
     };
   };

@@ -119,7 +119,7 @@ Singleton {
         arm(p);
     }
 
-    // niri has no per-window capture protocol: crop the window's rectangle like a region
+    // neither niri nor Hyprland has a per-window capture protocol here: crop the window's rectangle like a region
     function finishWindow(c) {
         const scr = selectScreen;
         finishRect(scr, c.x - scr.x, c.y - scr.y, c.w, c.h);
@@ -232,7 +232,8 @@ Singleton {
             } else {
                 if (root.target === "window") {
                     root.windows = [];
-                    niriWinProc.running = true;
+                    if (Compositor.isHypr) hyprWinProc.running = true;
+                    else niriWinProc.running = true;
                 }
                 root.freezePath = root.runtimeDir + "/haze-freeze-" + root.stamp() + ".png";
                 freezeProc.command = ["grim", "-o", scr.name, root.freezePath];
@@ -345,6 +346,41 @@ Singleton {
                         .sort((a, b) => (b.floating - a.floating) || (b.focused - a.focused));
                 } catch (err) {
                     console.warn("Capture: could not read niri windows:", err);
+                    root.windows = [];
+                }
+            }
+        }
+    }
+
+    // hyprland: windows visible on the focused monitor's active workspace
+    Process {
+        id: hyprWinProc
+        command: ["sh", "-c", "hyprctl -j monitors; echo '@@@'; hyprctl -j clients"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const parts = text.split("@@@");
+                    const mons = JSON.parse(parts[0]);
+                    const clients = JSON.parse(parts[1]);
+                    const mon = mons.find(m => m.name === root.selectScreen.name);
+                    if (!mon) {
+                        root.windows = [];
+                        return;
+                    }
+                    root.windows = clients
+                        .filter(c => c.mapped && !c.hidden && c.monitor === mon.id && c.workspace.id === mon.activeWorkspace.id)
+                        .map(c => ({
+                            x: c.at[0],
+                            y: c.at[1],
+                            w: c.size[0],
+                            h: c.size[1],
+                            title: c.title || c.class || "window",
+                            floating: c.floating,
+                            focused: c.focusHistoryID === 0
+                        }))
+                        .sort((a, b) => (b.floating - a.floating) || (b.focused - a.focused));
+                } catch (err) {
+                    console.warn("Capture: could not read hyprland windows:", err);
                     root.windows = [];
                 }
             }
