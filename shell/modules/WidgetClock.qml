@@ -48,13 +48,13 @@ Item {
             : Math.min(width / inkRow.advanceWidth, height / ink100)
         readonly property real px: isFinite(fit) && fit > 0 ? pct * 100 * fit : 52
         readonly property real inkH: ink100 * px / 100
-        readonly property real top: top100 * px / 100
+        readonly property real inkTop: top100 * px / 100
 
         // one line: 14:12
         RowLayout {
             visible: !small.stacked
             anchors.horizontalCenter: parent.horizontalCenter
-            y: (small.height - small.inkH) / 2 - small.top
+            y: (small.height - small.inkH) / 2 - small.inkTop
             spacing: 0
 
             WLabel {
@@ -87,7 +87,7 @@ Item {
         WLabel {
             visible: small.stacked
             anchors.horizontalCenter: parent.horizontalCenter
-            y: (small.height - (2 + small.gapK) * small.inkH) / 2 - small.top
+            y: (small.height - (2 + small.gapK) * small.inkH) / 2 - small.inkTop
             text: Qt.formatDateTime(clock.date, Settings.cfg.clock24h ? "HH" : "h")
             font.pixelSize: small.px
             font.weight: Font.Light
@@ -95,7 +95,7 @@ Item {
         WLabel {
             visible: small.stacked
             anchors.horizontalCenter: parent.horizontalCenter
-            y: (small.height - (2 + small.gapK) * small.inkH) / 2 + small.inkH * (1 + small.gapK) - small.top
+            y: (small.height - (2 + small.gapK) * small.inkH) / 2 + small.inkH * (1 + small.gapK) - small.inkTop
             text: Qt.formatDateTime(clock.date, "mm")
             font.pixelSize: small.px
             font.weight: Font.Light
