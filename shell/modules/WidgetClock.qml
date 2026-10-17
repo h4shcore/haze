@@ -4,7 +4,7 @@ import Quickshell
 import qs.common
 
 // Clock widget. Two sizes (Settings → Widgets → Size):
-//   small  (160×160): just the time, centered, with a breathing accent colon
+//   small  (160×160): just the time, sized by a slider (Settings → Widgets → Size), optionally stacked
 //   medium (340×160): weekday, big light time, full date
 Item {
     id: root
@@ -17,42 +17,89 @@ Item {
     }
 
     // ── small: only the time ──
+    // Sized from the real glyph shapes so the slider is honest: 100 % makes the digits touch the edges
+    // of the square, lower values leave room around them. "Stacked" puts the hours over the minutes,
+    // which fills a square far better than one line.
     Item {
+        id: small
+
         anchors.fill: parent
         visible: root.compact
 
-        RowLayout {
-            id: smallRow
+        readonly property bool stacked: Settings.cfg.widgetClockStacked
+        readonly property real pct: Settings.cfg.widgetClockTimeSize / 100
+        readonly property real gapK: 0.18      // gap between stacked lines, as a share of digit height
 
-            anchors.centerIn: parent
+        // reference metrics at 100 px (widest digits, so the size never jumps from minute to minute)
+        WLabel {
+            id: ref
+            visible: false
+            text: "00"
+            font.pixelSize: 100
+            font.weight: Font.Light
+        }
+        TextMetrics { id: inkPair; font: ref.font; text: "00" }
+        TextMetrics { id: inkRow; font: ref.font; text: "00:00" }
+
+        readonly property real ink100: inkPair.tightBoundingRect.height
+        readonly property real top100: ref.baselineOffset + inkPair.tightBoundingRect.y   // item top -> digit top
+        readonly property real fit: stacked
+            ? Math.min(width / inkPair.advanceWidth, height / (ink100 * (2 + gapK)))
+            : Math.min(width / inkRow.advanceWidth, height / ink100)
+        readonly property real px: isFinite(fit) && fit > 0 ? pct * 100 * fit : 52
+        readonly property real inkH: ink100 * px / 100
+        readonly property real top: top100 * px / 100
+
+        // one line: 14:12
+        RowLayout {
+            visible: !small.stacked
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: (small.height - small.inkH) / 2 - small.top
             spacing: 0
-            // never wider than the card, whatever the font turns out to be
-            scale: Math.min(1, parent.width / Math.max(1, implicitWidth))
 
             WLabel {
                 text: Qt.formatDateTime(clock.date, Settings.cfg.clock24h ? "HH" : "h")
-                font.pixelSize: 52
+                font.pixelSize: small.px
                 font.weight: Font.Light
             }
             WLabel {
-                Layout.bottomMargin: 4
+                Layout.bottomMargin: small.px * 0.07
                 text: ":"
-                font.pixelSize: 52
+                font.pixelSize: small.px
                 font.weight: Font.Light
                 color: Look.primary
 
                 SequentialAnimation on opacity {
                     loops: Animation.Infinite
-                    running: root.visible && root.compact
+                    running: root.visible && root.compact && !small.stacked
                     NumberAnimation { to: 0.35; duration: 1200; easing.type: Easing.InOutSine }
                     NumberAnimation { to: 1; duration: 1200; easing.type: Easing.InOutSine }
                 }
             }
             WLabel {
                 text: Qt.formatDateTime(clock.date, "mm")
-                font.pixelSize: 52
+                font.pixelSize: small.px
                 font.weight: Font.Light
             }
+        }
+
+        // stacked: hours over minutes
+        WLabel {
+            visible: small.stacked
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: (small.height - (2 + small.gapK) * small.inkH) / 2 - small.top
+            text: Qt.formatDateTime(clock.date, Settings.cfg.clock24h ? "HH" : "h")
+            font.pixelSize: small.px
+            font.weight: Font.Light
+        }
+        WLabel {
+            visible: small.stacked
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: (small.height - (2 + small.gapK) * small.inkH) / 2 + small.inkH * (1 + small.gapK) - small.top
+            text: Qt.formatDateTime(clock.date, "mm")
+            font.pixelSize: small.px
+            font.weight: Font.Light
+            color: Look.primary
         }
     }
 

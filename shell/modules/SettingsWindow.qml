@@ -143,6 +143,8 @@ PanelWindow {
                     { v: "small", l: "Small" },
                     { v: "medium", l: "Medium" }
                 ] },
+                { key: "widgetClockTimeSize", type: "int", label: "Clock time size", hint: "Small clock only. 100 fills the square", min: 40, max: 100, step: 1, unit: " %" },
+                { key: "widgetClockStacked", type: "bool", label: "Clock stacked", hint: "Small clock only. Hours over minutes fills the square better" },
                 { key: "widgetMediaSize", type: "enum", label: "Now playing size", hint: "Small is a square showing only the album art", options: [
                     { v: "small", l: "Small" },
                     { v: "medium", l: "Medium" }

@@ -46,6 +46,8 @@ Singleton {
         widgetClockX: -1,
         widgetClockY: -1,
         widgetClockSize: "medium",   // "small" (time only, 160x160) or "medium" (340x160)
+        widgetClockTimeSize: 85,     // small clock: how much of the square the digits fill, in % (100 = edge to edge)
+        widgetClockStacked: false,   // small clock: hours over minutes instead of one line
         widgetMedia: false,
         widgetMediaX: -1,
         widgetMediaY: -1,
