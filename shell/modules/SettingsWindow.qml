@@ -14,6 +14,7 @@ import qs.services
 // To add an option: add it to Settings.defaults (common/Settings.qml), then add one line to `pages` below.
 //   types: bool · enum (options: [{ v, l }], segmented) · chips (options, wraps) · text (placeholder) · int / real (min, max, step, unit)
 //          action (action: id, button: text) · live (live: wifi | bt | vpn | nightlight, a toggle bound to a service) · info (mono label) · preview
+//          panel (panel: wifi | bt | vpn, a full connectivity list, see WifiPanel / BtPanel / VpnPanel)
 PanelWindow {
     id: win
 
@@ -124,12 +125,17 @@ PanelWindow {
             ] }
         ] },
         { id: "network", label: "Connectivity", glyph: "\uf1eb", title: "Connectivity", sub: "Wi-Fi, Bluetooth and VPN", sections: [
-            { title: "Wireless", items: [
-                { type: "live", live: "wifi", label: "Wi-Fi", hint: "Networks are in the control center (›)" },
-                { type: "live", live: "bt", label: "Bluetooth", hint: "Devices are in the control center (›)" }
+            { title: "Wi-Fi", items: [
+                { type: "live", live: "wifi", label: "Wi-Fi", hint: "" },
+                { type: "panel", panel: "wifi" }
+            ] },
+            { title: "Bluetooth", items: [
+                { type: "live", live: "bt", label: "Bluetooth", hint: "" },
+                { type: "panel", panel: "bt" }
             ] },
             { title: "VPN", items: [
-                { type: "live", live: "vpn", label: "VPN", hint: "NetworkManager, WireGuard or Tailscale" }
+                { type: "live", live: "vpn", label: "VPN", hint: "NetworkManager, WireGuard or Tailscale" },
+                { type: "panel", panel: "vpn" }
             ] }
         ] },
         { id: "modules", label: "Modules", glyph: "\uf009", title: "Modules", sub: "Turn the docks around the border on or off", sections: [
@@ -230,7 +236,7 @@ PanelWindow {
         for (const p of pages) {
             for (const s of p.sections) {
                 for (const it of s.items) {
-                    if (it.type === "preview" || it.type === "info") continue;
+                    if (it.type === "preview" || it.type === "info" || it.type === "panel") continue;
                     const hay = ((it.label ?? "") + " " + (it.hint ?? "") + " " + p.label + " " + s.title).toLowerCase();
                     if (hay.includes(q))
                         out.push(Object.assign({}, it, { hint: (it.hint ? it.hint + "  ·  " : "") + p.label }));
@@ -744,6 +750,8 @@ PanelWindow {
                                                     case "live": return cLive;
                                                     case "info": return cInfo;
                                                     case "preview": return cPreview;
+                                                    case "panel": return row.modelData.panel === "wifi" ? cWifi
+                                                        : row.modelData.panel === "bt" ? cBt : cVpn;
                                                     default: return cNum;
                                                     }
                                                 }
@@ -987,6 +995,10 @@ PanelWindow {
                                                     }
                                                 }
                                             }
+
+                                            Component { id: cWifi; WifiPanel {} }
+                                            Component { id: cBt; BtPanel {} }
+                                            Component { id: cVpn; VpnPanel {} }
 
                                             Component {
                                                 id: cPreview

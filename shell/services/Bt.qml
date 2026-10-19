@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Bluetooth
 
 Singleton {
@@ -21,9 +22,43 @@ Singleton {
         .filter(d => (d.name ?? "") !== "" && (d.paired || d.connected || scanning))
         .sort((a, b) => (b.connected - a.connected) || (b.paired - a.paired) || a.name.localeCompare(b.name))
 
+    // paired / connected devices, and (while scanning) the unpaired ones around
+    readonly property var mine: Bluetooth.devices.values
+        .filter(d => (d.name ?? "") !== "" && (d.paired || d.connected))
+        .sort((a, b) => (b.connected - a.connected) || a.name.localeCompare(b.name))
+    readonly property var nearby: Bluetooth.devices.values
+        .filter(d => (d.name ?? "") !== "" && !d.paired && !d.connected)
+        .sort((a, b) => a.name.localeCompare(b.name))
+
+    readonly property string adapterName: adapter?.name ?? ""
+    readonly property bool discoverable: adapter?.discoverable ?? false
+
     function toggle() {
         if (adapter) adapter.enabled = !adapter.enabled;
     }
+
+    function setDiscoverable(on) {
+        if (adapter) adapter.discoverable = on;
+    }
+
+    function trust(d, on) {
+        d.trusted = on;
+    }
+
+    function forget(d) {
+        if (typeof d.forget === "function") d.forget();
+        else {
+            forgetProc.command = ["bluetoothctl", "remove", d.address];
+            forgetProc.running = true;
+        }
+    }
+
+    function kind(d) {
+        const i = (d.icon ?? "").replace(/^(input|audio)-/, "").replace(/-/g, " ");
+        return i === "" ? "" : i.charAt(0).toUpperCase() + i.slice(1);
+    }
+
+    Process { id: forgetProc }
 
     function scan(on) {
         if (adapter && adapter.enabled) adapter.discovering = on;
@@ -45,6 +80,7 @@ Singleton {
     }
 
     function detail(d) {
+        if (pending === d) return "Pairing…";
         if (busy(d)) return d.state === BluetoothDeviceState.Connecting ? "Connecting…" : "Disconnecting…";
         const bat = d.batteryAvailable ? Math.round(d.battery * 100) + "%" : "";
         if (d.connected) return bat !== "" ? "Connected · " + bat : "Connected";

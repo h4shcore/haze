@@ -479,7 +479,7 @@ Item {
                                 color: Look.primary
                             }
                             Label {
-                                text: row.modelData.uses
+                                text: String(row.modelData.uses ?? 0)
                                 color: Look.fgDim
                                 font.pixelSize: 11
                             }

@@ -19,8 +19,9 @@ a notch that expands when you hover it, and little docks that grow out of the bo
   recording**, and a **power menu**.
 - **Notification server:** Haze is the notification daemon, with a notification panel in the notch.
 - **Control center extras:** a night light tile in the bento grid. The Bluetooth tile shows the battery of a single
-  connected device. Wi-Fi, Bluetooth, VPN (NetworkManager or Tailscale) and night light can also be switched in
-  Settings → Connectivity.
+  connected device. Settings → Connectivity has full Wi-Fi (scan, join, hidden networks, IP details, auto-connect,
+  forget), Bluetooth (pair, connect, trust, forget, discoverable) and VPN (NetworkManager / WireGuard / OpenVPN profiles,
+  Tailscale with exit nodes, config import) pages.
 - **Now playing widget:** a large size with synced lyrics (lrclib.net) and an audio spectrum (cava); the medium size
   shows the line being sung.
 - **Launcher extras:** `/` file search, `?` web search, `@` window switcher, `!` system actions, and unit / currency
