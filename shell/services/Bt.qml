@@ -33,8 +33,49 @@ Singleton {
     readonly property string adapterName: adapter?.name ?? ""
     readonly property bool discoverable: adapter?.discoverable ?? false
 
+    // rfkill: a blocked adapter can't be powered on until it is unblocked
+    property bool blocked: false
+
     function toggle() {
-        if (adapter) adapter.enabled = !adapter.enabled;
+        if (!adapter) return;
+        if (!adapter.enabled && blocked) unblock();
+        else adapter.enabled = !adapter.enabled;
+    }
+
+    function unblock() {
+        if (!unblockProc.running) unblockProc.running = true;
+    }
+
+    Process {
+        id: blockProc
+        command: ["sh", "-c", "rfkill list bluetooth 2>/dev/null | grep -qi 'blocked: yes' && echo yes || echo no"]
+        stdout: StdioCollector {
+            onStreamFinished: root.blocked = text.trim() === "yes"
+        }
+    }
+
+    Process {
+        id: unblockProc
+        command: ["rfkill", "unblock", "bluetooth"]
+        onExited: {
+            if (!blockProc.running) blockProc.running = true;
+            powerOn.restart();
+        }
+    }
+
+    // give the adapter a moment to reappear before switching it on
+    Timer {
+        id: powerOn
+        interval: 800
+        onTriggered: if (root.adapter && !root.blocked) root.adapter.enabled = true
+    }
+
+    Timer {
+        interval: 10000
+        repeat: true
+        running: !root.enabled
+        triggeredOnStart: true
+        onTriggered: if (!blockProc.running) blockProc.running = true
     }
 
     function setDiscoverable(on) {

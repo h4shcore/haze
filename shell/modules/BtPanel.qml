@@ -39,13 +39,13 @@ Item {
 
                 Label {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: !Bt.available ? "No Bluetooth adapter found" : "Bluetooth is off"
+                    text: !Bt.available ? "No Bluetooth adapter found" : Bt.blocked ? "Bluetooth is blocked (rfkill)" : "Bluetooth is off"
                     color: Look.fgDim
                 }
                 TextButton {
                     anchors.horizontalCenter: parent.horizontalCenter
                     visible: Bt.available
-                    text: "Turn on"
+                    text: Bt.blocked ? "Unblock and turn on" : "Turn on"
                     primary: true
                     onClicked: Bt.toggle()
                 }

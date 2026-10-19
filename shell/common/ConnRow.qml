@@ -22,7 +22,7 @@ Item {
 
     readonly property int headHeight: 58
 
-    implicitHeight: headHeight + drawerBox.height
+    implicitHeight: headHeight + drawerH
     height: implicitHeight
 
     Rectangle {
@@ -96,15 +96,21 @@ Item {
         }
     }
 
+    // The drawer is one item (a Column). Its wanted height is measured from that item alone and animated
+    // separately, so the animated height never feeds back into the measurement.
+    readonly property Item drawerItem: drawerBox.children.length > 0 ? drawerBox.children[0] : null
+    readonly property real drawerWanted: expanded && drawerItem ? drawerItem.y + drawerItem.height + 14 : 0
+    property real drawerH: drawerWanted
+    Behavior on drawerH { Anim { duration: 260; curve: Look.standard } }
+
     Item {
         id: drawerBox
         y: root.headHeight
         width: parent.width
-        height: root.expanded ? childrenRect.y + childrenRect.height + 14 : 0
+        height: root.drawerH
         opacity: root.expanded ? 1 : 0
         visible: height > 0
         clip: true
-        Behavior on height { Anim { duration: 260; curve: Look.standard } }
         Behavior on opacity { Anim { duration: 200; curve: Look.standard } }
     }
 }
