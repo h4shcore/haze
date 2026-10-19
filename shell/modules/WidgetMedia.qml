@@ -204,7 +204,7 @@ Item {
         ColumnLayout {
             width: parent.width
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 6
+            spacing: 5
 
             WLabel {
                 Layout.fillWidth: true
@@ -219,7 +219,7 @@ Item {
                 Layout.fillWidth: true
                 text: Lyrics.cur
                 color: Lyrics.ready ? Look.fg : Look.fgDim
-                font.pixelSize: 17
+                font.pixelSize: 16
                 font.weight: Font.DemiBold
                 wrapMode: Text.Wrap
                 maximumLineCount: 2
@@ -423,11 +423,15 @@ Item {
     // ── large: cover + title, lyrics, spectrum, progress, controls ──
     ColumnLayout {
         anchors.fill: parent
-        spacing: 10
+        spacing: 8
         visible: !root.compact && root.large
 
+        // fixed height: a nested layout with fill children would otherwise grab the spare space
+        // and squash the lyrics
         RowLayout {
             Layout.fillWidth: true
+            Layout.fillHeight: false
+            Layout.preferredHeight: 84
             spacing: 14
 
             Art {
@@ -480,6 +484,7 @@ Item {
         LyricLines {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.minimumHeight: 80
             visible: root.wantLyrics
         }
         Item {

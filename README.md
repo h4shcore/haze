@@ -18,8 +18,9 @@ a notch that expands when you hover it, and little docks that grow out of the bo
 - **Clipboard history**, **wallpaper picker** (colors from the wallpaper via matugen), **screenshots and
   recording**, and a **power menu**.
 - **Notification server:** Haze is the notification daemon, with a notification panel in the notch.
-- **Control center extras:** a quick row with night light, VPN (NetworkManager or Tailscale), screen recording and a
-  color picker. The Bluetooth tile shows the battery of a single connected device.
+- **Control center extras:** a night light tile in the bento grid. The Bluetooth tile shows the battery of a single
+  connected device. Wi-Fi, Bluetooth, VPN (NetworkManager or Tailscale) and night light can also be switched in
+  Settings → Connectivity.
 - **Now playing widget:** a large size with synced lyrics (lrclib.net) and an audio spectrum (cava); the medium size
   shows the line being sung.
 - **Launcher extras:** `/` file search, `?` web search, `@` window switcher, `!` system actions, and unit / currency
@@ -35,7 +36,7 @@ a notch that expands when you hover it, and little docks that grow out of the bo
 - `grim`, `wl-clipboard`, `cliphist`, `wl-screenrec`, `wtype`, `matugen`, `brightnessctl`, `libnotify`,
   `xdg-utils`, `dbus-monitor` (from `dbus`), `cava`, `curl`, `fd` (optional, else `find`), `gammastep` and
   NetworkManager (`nmcli`). The Nix package brings all but NetworkManager along. Optional: `hyprpicker` (color
-  picker on Hyprland), `tailscale` (VPN tile).
+  picker on Hyprland), `tailscale` (VPN toggle in Settings).
 - A PAM service for the lock screen (`login` works on most distros, see [Lock screen](#lock-screen))
 - Fonts: [Rubik](https://github.com/googlefonts/rubik) and, optionally,
   [Material Symbols](https://github.com/google/material-design-icons) (falls back to Nerd Font symbols)

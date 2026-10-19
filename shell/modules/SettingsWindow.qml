@@ -9,11 +9,11 @@ import qs.services
 // Floating settings app: sidebar + search + grouped cards, everything applies live and is saved to
 // ~/.config/quickshell/haze-settings.json.
 //
-// Esc close · / or Ctrl+F search · Alt+1…4 pages · drag the title to move (double-click it to re-center)
+// Esc close · / or Ctrl+F search · Alt+1…9 pages · drag the title to move (double-click it to re-center)
 //
 // To add an option: add it to Settings.defaults (common/Settings.qml), then add one line to `pages` below.
 //   types: bool · enum (options: [{ v, l }], segmented) · chips (options, wraps) · text (placeholder) · int / real (min, max, step, unit)
-//          action (action: id, button: text) · info (mono label) · preview
+//          action (action: id, button: text) · live (live: wifi | bt | vpn | nightlight, a toggle bound to a service) · info (mono label) · preview
 PanelWindow {
     id: win
 
@@ -119,8 +119,17 @@ PanelWindow {
                 { key: "ccShowMedia", type: "bool", label: "Now playing card" },
                 { key: "ccShowSysMon", type: "bool", label: "System monitor", hint: "CPU, memory and temperature, right of the control center" },
                 { key: "ccShowShortcuts", type: "bool", label: "Shortcut strip", hint: "Launcher, clipboard, wallpapers, capture, power" },
-                { key: "ccShowQuick", type: "bool", label: "Quick toggles", hint: "Night light, VPN, record and color picker, under the big tiles" },
+                { type: "live", live: "nightlight", label: "Night light", hint: "Also a tile in the control center" },
                 { key: "nightLightTemp", type: "int", label: "Night light warmth", hint: "Kelvin, lower is warmer. Toggle it off and on to apply", min: 2500, max: 6000, step: 100, unit: " K" }
+            ] }
+        ] },
+        { id: "network", label: "Connectivity", glyph: "\uf1eb", title: "Connectivity", sub: "Wi-Fi, Bluetooth and VPN", sections: [
+            { title: "Wireless", items: [
+                { type: "live", live: "wifi", label: "Wi-Fi", hint: "Networks are in the control center (›)" },
+                { type: "live", live: "bt", label: "Bluetooth", hint: "Devices are in the control center (›)" }
+            ] },
+            { title: "VPN", items: [
+                { type: "live", live: "vpn", label: "VPN", hint: "NetworkManager, WireGuard or Tailscale" }
             ] }
         ] },
         { id: "modules", label: "Modules", glyph: "\uf009", title: "Modules", sub: "Turn the docks around the border on or off", sections: [
@@ -229,6 +238,42 @@ PanelWindow {
             }
         }
         return out.length > 0 ? [{ title: out.length + (out.length === 1 ? " result" : " results"), items: out }] : [];
+    }
+
+    // live (non-saved) toggles: state comes from the services, not from haze-settings.json
+    function liveOn(id) {
+        switch (id) {
+        case "wifi": return Network.enabled;
+        case "bt": return Bt.enabled;
+        case "vpn": return Vpn.active;
+        case "nightlight": return NightLight.active;
+        }
+        return false;
+    }
+    function liveUsable(id) {
+        switch (id) {
+        case "bt": return Bt.available;
+        case "vpn": return Vpn.available && !Vpn.busy;
+        }
+        return true;
+    }
+    function liveHint(id, fallback) {
+        switch (id) {
+        case "wifi": return Network.enabled ? (Network.ssid !== "" ? "Connected to " + Network.ssid : "Not connected") : "Off";
+        case "bt": return Bt.available ? Bt.label : "No Bluetooth adapter found";
+        case "vpn": return Vpn.available ? (Vpn.busy ? "Working…" : Vpn.active ? "Connected · " + Vpn.label : "Off · " + Vpn.name)
+            : "None found. Add a NetworkManager / WireGuard connection or start Tailscale";
+        case "nightlight": return NightLight.active ? "On at " + Settings.cfg.nightLightTemp + " K" : fallback;
+        }
+        return fallback;
+    }
+    function liveToggle(id) {
+        switch (id) {
+        case "wifi": Network.toggle(); break;
+        case "bt": Bt.toggle(); break;
+        case "vpn": Vpn.toggle(); break;
+        case "nightlight": NightLight.toggle(); break;
+        }
     }
 
     property string armed: ""
@@ -696,6 +741,7 @@ PanelWindow {
                                                     case "chips": return cChips;
                                                     case "text": return cText;
                                                     case "action": return cAction;
+                                                    case "live": return cLive;
                                                     case "info": return cInfo;
                                                     case "preview": return cPreview;
                                                     default: return cNum;
@@ -746,6 +792,21 @@ PanelWindow {
                                                         unit: row.modelData.unit ?? ""
                                                         value: row.val ?? row.modelData.min
                                                         onMoved: v => Settings.set(row.key, v)
+                                                    }
+                                                }
+                                            }
+
+                                            Component {
+                                                id: cLive
+
+                                                SettingRow {
+                                                    label: row.modelData.label
+                                                    hint: win.liveHint(row.modelData.live, row.modelData.hint ?? "")
+
+                                                    Toggle {
+                                                        checked: win.liveOn(row.modelData.live)
+                                                        enabled: win.liveUsable(row.modelData.live)
+                                                        onToggled: win.liveToggle(row.modelData.live)
                                                     }
                                                 }
                                             }

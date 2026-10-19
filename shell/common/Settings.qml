@@ -41,7 +41,6 @@ Singleton {
         ccShowMedia: true,
         ccShowSysMon: true,
         ccShowShortcuts: true,
-        ccShowQuick: true,        // night light / VPN / record / color picker row
         nightLightTemp: 4000,     // Kelvin, lower = warmer
 
         widgetClock: false,   // desktop widgets (modules/WidgetsLayer.qml); X / Y = -1 means the default spot
