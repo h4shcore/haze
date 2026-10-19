@@ -17,7 +17,9 @@ a notch that expands when you hover it, and little docks that grow out of the bo
   `:` emoji picker, and `>` command runner (Enter runs it in a terminal, Ctrl+Enter in the background).
 - **Clipboard history**, **wallpaper picker** (colors from the wallpaper via matugen), **screenshots and
   recording**, and a **power menu**.
-- **Notification server:** Haze is the notification daemon, with a notification panel in the notch.
+- **Notification server:** Haze is the notification daemon, with a notification panel in the notch: action buttons,
+  inline reply (for apps that support it), per-app mute (the bell on a card, or Settings → Notifications) and a History
+  tab that survives restarts.
 - **Control center extras:** a night light tile in the bento grid. The Bluetooth tile shows the battery of a single
   connected device. Settings → Connectivity has full Wi-Fi (scan, join, hidden networks, IP details, auto-connect,
   forget), Bluetooth (pair, connect, trust, forget, discoverable) and VPN (NetworkManager / WireGuard / OpenVPN profiles,

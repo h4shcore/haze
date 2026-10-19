@@ -177,6 +177,16 @@ PanelWindow {
                 { type: "action", action: "resetWidgets", label: "Reset positions", hint: "Back to the default spots", button: "Reset" }
             ] }
         ] },
+        { id: "notifications", label: "Notifications", glyph: "\uf0f3", title: "Notifications", sub: "Mute apps and keep a history", sections: [
+            { title: "History", items: [
+                { key: "notifHistory", type: "bool", label: "Keep history", hint: "Saved to ~/.local/state/quickshell-haze/notif-history.json, shown in the History tab of the inbox" },
+                { key: "notifHistoryMax", type: "int", label: "History size", hint: "Oldest entries are dropped", min: 20, max: 500, step: 10, unit: " items" },
+                { type: "action", action: "clearHistory", label: "Clear history", hint: "Delete every saved notification", button: "Clear" }
+            ] },
+            { title: "Muted apps", items: [
+                { key: "mutedApps", type: "text", label: "Muted apps", hint: "App names, comma-separated. No toasts (critical ones still pop up), still in the inbox. The bell on a notification adds an app here. Press Enter to apply", placeholder: "Discord, Spotify" }
+            ] }
+        ] },
         { id: "launcher", label: "Launcher", glyph: "\uf002", title: "Launcher", sub: "Prefixes: = calc · : emoji · > run · / files · ? web · @ windows · ! system", sections: [
             { title: "Web search", items: [
                 { key: "launcherSearchEngine", type: "chips", label: "Default engine", hint: "Used by ?terms. ?yt, ?gh, ?nix, ?w and ?maps pick another", options: [
@@ -291,6 +301,8 @@ PanelWindow {
         } else if (id === "resetWidgets") {
             Settings.reset(["widgetClockX", "widgetClockY", "widgetMediaX", "widgetMediaY", "widgetSysmonX", "widgetSysmonY",
                 "widgetTodoX", "widgetTodoY"]);
+        } else if (id === "clearHistory") {
+            Notifs.clearHistory();
         } else if (id === "lockNow") {
             SettingsUi.hide();
             Lock.lock();

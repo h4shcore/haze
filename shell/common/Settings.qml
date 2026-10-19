@@ -63,6 +63,11 @@ Singleton {
         widgetTodoX: -1,
         widgetTodoY: -1,
 
+        // notifications (services/Notifs.qml)
+        notifHistory: true,        // keep a history that survives restarts
+        notifHistoryMax: 100,
+        mutedApps: "",             // comma-separated app names: no toasts, still in the inbox
+
         // launcher
         launcherSearchEngine: "ddg",   // default engine for "?" (ddg | google | brave)
 

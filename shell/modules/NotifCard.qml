@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import qs.common
+import qs.services
 
 // entry = an Entry from services/Notifs.qml
 Rectangle {
@@ -11,6 +12,18 @@ Rectangle {
     required property var entry
     readonly property var n: entry?.notif ?? null
     readonly property string src: !n ? "" : ((n.image ?? "") !== "" ? n.image : ((n.appIcon ?? "") !== "" ? (n.appIcon.startsWith("/") ? "file://" + n.appIcon : Quickshell.iconPath(n.appIcon, true)) : ""))
+
+    readonly property var actions: (n?.actions ?? []).filter(a => a.identifier !== "inline-reply")
+    readonly property bool canReply: n?.hasInlineReply ?? false
+    readonly property bool replyOpen: Notifs.replying === entry
+
+    function sendReply() {
+        const t = replyField.text.trim();
+        if (t === "") return;
+        n.sendInlineReply(t);
+        replyField.text = "";
+        Notifs.replying = null;
+    }
 
     implicitHeight: col.implicitHeight + 24
     radius: 20
@@ -94,21 +107,64 @@ Rectangle {
                 }
             }
 
-            IconButton {
+            RowLayout {
                 Layout.alignment: Qt.AlignTop
-                size: 28
-                glyph: "\uf00d"
-                onClicked: root.n?.dismiss()
+                spacing: 0
+
+                IconButton {
+                    visible: (root.n?.appName ?? "") !== ""
+                    size: 28
+                    glyph: "\uf1f6"
+                    primary: Notifs.isMuted(root.n?.appName)
+                    onClicked: {
+                        Notifs.toggleMute(root.n.appName);
+                        if (Notifs.isMuted(root.n.appName) && root.entry) root.entry.popup = false;
+                    }
+                }
+                IconButton {
+                    size: 28
+                    glyph: "\uf00d"
+                    onClicked: root.n?.dismiss()
+                }
             }
         }
 
         RowLayout {
             Layout.fillWidth: true
-            visible: (root.n?.actions?.length ?? 0) > 0
+            visible: root.actions.length > 0 || root.canReply
             spacing: 6
 
+            Rectangle {
+                visible: root.canReply
+                implicitWidth: replyLbl.implicitWidth + 24
+                implicitHeight: 28
+                radius: 14
+                color: root.replyOpen ? Look.primary : rm.containsMouse ? Look.secondaryContainer : Look.surfaceHiest
+                Behavior on color { ColorAnimation { duration: 150 } }
+
+                Label {
+                    id: replyLbl
+                    anchors.centerIn: parent
+                    text: "Reply"
+                    font.pixelSize: 12
+                    color: root.replyOpen ? Look.primaryFg : Look.fg
+                }
+                MouseArea {
+                    id: rm
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: {
+                        if (root.replyOpen) Notifs.replying = null;
+                        else {
+                            if (root.entry) root.entry.popup = true;
+                            Notifs.replying = root.entry;
+                        }
+                    }
+                }
+            }
+
             Repeater {
-                model: root.n ? root.n.actions : []
+                model: root.actions
 
                 Rectangle {
                     id: btn
@@ -132,6 +188,31 @@ Rectangle {
                         onClicked: btn.modelData.invoke()
                     }
                 }
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            visible: root.canReply && root.replyOpen
+            spacing: 6
+
+            Field {
+                id: replyField
+                Layout.fillWidth: true
+                implicitHeight: 34
+                placeholder: root.n?.inlineReplyPlaceholder || "Write a reply"
+                focusWhen: root.replyOpen
+                onAccepted: root.sendReply()
+                onEscaped: {
+                    text = "";
+                    Notifs.replying = null;
+                }
+            }
+            IconButton {
+                size: 34
+                glyph: "\uf061"
+                primary: replyField.text.trim() !== ""
+                onClicked: root.sendReply()
             }
         }
     }

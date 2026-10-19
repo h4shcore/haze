@@ -7,6 +7,8 @@ import qs.services
 Item {
     id: root
 
+    property string tab: "new"      // "new" | "history"
+
     implicitWidth: 360
     implicitHeight: col.implicitHeight
 
@@ -35,16 +37,24 @@ Item {
             IconButton {
                 size: 32
                 glyph: "\uf1f8"
-                onClicked: Notifs.clearAll()
+                onClicked: root.tab === "new" ? Notifs.clearAll() : Notifs.clearHistory()
             }
+        }
+
+        Segmented {
+            Layout.alignment: Qt.AlignHCenter
+            segWidth: 110
+            options: [{ v: "new", l: "New" }, { v: "history", l: "History" }]
+            value: root.tab
+            onPicked: v => root.tab = v
         }
 
         Label {
             Layout.alignment: Qt.AlignHCenter
             Layout.topMargin: 12
             Layout.bottomMargin: 12
-            visible: Notifs.count === 0
-            text: "All caught up"
+            visible: root.tab === "new" ? Notifs.count === 0 : Notifs.history.length === 0
+            text: root.tab === "new" ? "All caught up" : Settings.cfg.notifHistory ? "No history yet" : "History is turned off"
             color: Look.fgDim
         }
 
@@ -52,7 +62,7 @@ Item {
             id: lv
             Layout.fillWidth: true
             Layout.preferredHeight: Math.min(contentHeight, 380)
-            visible: Notifs.count > 0
+            visible: root.tab === "new" && Notifs.count > 0
             clip: true
             spacing: 8
             boundsBehavior: Flickable.StopAtBounds
@@ -72,6 +82,22 @@ Item {
             }
             displaced: Transition {
                 Anim { property: "y" }
+            }
+        }
+
+        ListView {
+            Layout.fillWidth: true
+            Layout.preferredHeight: Math.min(contentHeight, 380)
+            visible: root.tab === "history" && Notifs.history.length > 0
+            clip: true
+            spacing: 8
+            boundsBehavior: Flickable.StopAtBounds
+            model: ScriptModel { values: [...Notifs.history] }
+
+            delegate: NotifHistoryCard {
+                required property var modelData
+                width: ListView.view.width
+                item: modelData
             }
         }
     }

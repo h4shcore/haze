@@ -55,7 +55,7 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
     WlrLayershell.namespace: "haze"
-    WlrLayershell.keyboardFocus: (LauncherState.open || cc.wantKeys) && focusedHere ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: (LauncherState.open || cc.wantKeys || Notifs.replying !== null) && focusedHere ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     mask: Region {
         item: notch
@@ -94,7 +94,7 @@ PanelWindow {
         id: collapse
         interval: 350
         onTriggered: {
-            if (cc.busy) collapse.restart();
+            if (cc.busy || Notifs.replying !== null) collapse.restart();
             else win.expanded = false;
         }
     }
