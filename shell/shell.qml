@@ -10,7 +10,7 @@ ShellRoot {
         PerScreen {}
     }
 
-    // qs -c haze ipc call launcher toggle | show | hide | calc | emoji | run
+    // qs -c haze ipc call launcher toggle | show | hide | calc | emoji | run | files | web | windows | system
     IpcHandler {
         target: "launcher"
 
@@ -28,10 +28,41 @@ ShellRoot {
             LauncherState.preset = ">";
             LauncherState.show();
         }
+        function files(): void {
+            LauncherState.preset = "/";
+            LauncherState.show();
+        }
+        function web(): void {
+            LauncherState.preset = "?";
+            LauncherState.show();
+        }
+        function windows(): void {
+            LauncherState.preset = "@";
+            LauncherState.show();
+        }
+        function system(): void {
+            LauncherState.preset = "!";
+            LauncherState.show();
+        }
         function hide(): void { LauncherState.hide(); }
     }
 
     Cropper {}
+
+    // qs -c haze ipc call nightlight toggle
+    IpcHandler {
+        target: "nightlight"
+
+        function toggle(): void { NightLight.toggle(); }
+    }
+
+    // qs -c haze ipc call colorpicker pick
+    IpcHandler {
+        target: "colorpicker"
+
+        function pick(): void { ColorPicker.pick(); }
+    }
+
     LockScreen {}
 
     // qs -c haze ipc call lock lock

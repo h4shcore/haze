@@ -18,6 +18,12 @@ a notch that expands when you hover it, and little docks that grow out of the bo
 - **Clipboard history**, **wallpaper picker** (colors from the wallpaper via matugen), **screenshots and
   recording**, and a **power menu**.
 - **Notification server:** Haze is the notification daemon, with a notification panel in the notch.
+- **Control center extras:** a quick row with night light, VPN (NetworkManager or Tailscale), screen recording and a
+  color picker. The Bluetooth tile shows the battery of a single connected device.
+- **Now playing widget:** a large size with synced lyrics (lrclib.net) and an audio spectrum (cava); the medium size
+  shows the line being sung.
+- **Launcher extras:** `/` file search, `?` web search, `@` window switcher, `!` system actions, and unit / currency
+  conversion (`12 km to mi`, `100 usd to eur`). See [Launcher](#launcher).
 - **Lock screen:** blurred wallpaper, big clock and a password pill. Locks when idle, before suspend and on
   `loginctl lock-session` (the power menu's Lock). See [Lock screen](#lock-screen).
 - **Settings app:** a floating window with search and a live preview. Everything applies instantly.
@@ -27,8 +33,9 @@ a notch that expands when you hover it, and little docks that grow out of the bo
 - Niri 26.04 or newer, or a recent Hyprland (Haze picks the right one on its own)
 - Quickshell 0.3 or newer
 - `grim`, `wl-clipboard`, `cliphist`, `wl-screenrec`, `wtype`, `matugen`, `brightnessctl`, `libnotify`,
-  `xdg-utils`, `dbus-monitor` (from `dbus`), and NetworkManager (`nmcli`). The Nix package brings all but
-  NetworkManager along.
+  `xdg-utils`, `dbus-monitor` (from `dbus`), `cava`, `curl`, `fd` (optional, else `find`), `gammastep` and
+  NetworkManager (`nmcli`). The Nix package brings all but NetworkManager along. Optional: `hyprpicker` (color
+  picker on Hyprland), `tailscale` (VPN tile).
 - A PAM service for the lock screen (`login` works on most distros, see [Lock screen](#lock-screen))
 - Fonts: [Rubik](https://github.com/googlefonts/rubik) and, optionally,
   [Material Symbols](https://github.com/google/material-design-icons) (falls back to Nerd Font symbols)
@@ -126,6 +133,32 @@ corner rounding to taste, for example `hl.config({ general = { gaps_out = 10 }, 
 - If you run Haze as a systemd user service, make sure it can see `HYPRLAND_INSTANCE_SIGNATURE`, for
   example by adding `hl.exec_cmd("dbus-update-activation-environment --systemd --all")` to the
   `hyprland.start` hook, or just start Haze from that hook.
+
+## Launcher
+
+Type in the launcher, or open it straight into a mode with `haze ipc call launcher files | web | windows | system`.
+
+| prefix | what | Enter | Ctrl+Enter |
+| --- | --- | --- | --- |
+| `=` | calculator (plain math works too) | copy | |
+| `:` | emoji | copy | |
+| `>` | shell command | run in a terminal | run in the background |
+| `/` | files and folders under `~` (hidden ones skipped) | open | copy the path |
+| `?` | web search, `?yt lofi`, `?gh quickshell`, `?nix ripgrep`, `?w penguin`, `?maps nagpur`; a bare domain opens it | open | |
+| `@` | open windows, most recent first | focus | close |
+| `!` | system actions: lock, suspend, log out, reboot, shut down, caffeine, focus mode, night light… | run | |
+
+- Plain queries also convert: `12 km to mi`, `72 f in c`, `3 cups to ml`, `100 usd to eur`. Currency rates come from
+  open.er-api.com and are cached for 12 hours.
+- Typing a clear action name (`lock`, `reboot`, `dnd`) puts that action above the apps. Log out, reboot and shut down
+  ask for a second Enter within 3 seconds.
+- The default web engine is under Settings → Launcher.
+
+## Now playing widget
+
+Settings → Widgets → Now playing size: small (art), medium (adds the current lyric line) or large (cover, three lyric
+lines, spectrum, progress, controls). Lyrics are fetched from lrclib.net by artist and title and only for the widgets
+that are showing; the spectrum needs `cava` and runs only while something plays. Both can be switched off there.
 
 ## Lock screen
 

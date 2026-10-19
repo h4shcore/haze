@@ -5,6 +5,7 @@ import qs.services
 
 // The hover-expanded control center, bento style:
 //   [ 2x2 toggle tiles ][ vol ][ bri ]
+//   [ night light · VPN · record · color picker ]
 //   [ now-playing card                ]
 //   [ shortcut strip                  ]
 // The › on the Wi-Fi / Bluetooth tiles (or right-clicking them / the volume slider) swaps the stack for a sub-menu.
@@ -114,6 +115,59 @@ Item {
                     glyph: "\uf185"
                     value: Brightness.value
                     onMoved: v => Brightness.set(v)
+                }
+            }
+        }
+
+        // ── quick toggles: night light, VPN, screen recording, color picker ──
+        Reveal {
+            Layout.fillWidth: true
+            visible: Settings.cfg.ccShowQuick
+            shown: root.shown
+            delay: 25
+
+            RowLayout {
+                width: parent.width
+                height: 64
+                spacing: 10
+
+                MiniTile {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    glyph: "nightlight"
+                    title: "Night light"
+                    on: NightLight.active
+                    onClicked: NightLight.toggle()
+                }
+                MiniTile {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    visible: Vpn.available
+                    glyph: "vpn_key"
+                    title: Vpn.label
+                    on: Vpn.active
+                    enabled: !Vpn.busy
+                    onClicked: Vpn.toggle()
+                }
+                MiniTile {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    visible: Capture.hasRec
+                    glyph: Capture.recording ? "\uf04d" : "\uf111"
+                    title: Capture.recording ? Capture.fmt(Capture.elapsed) : "Record"
+                    on: Capture.recording
+                    onClicked: {
+                        if (Capture.recording) Capture.stop();
+                        else Capture.start("record", Capture.target);
+                    }
+                }
+                MiniTile {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    glyph: "colorize"
+                    title: "Pick color"
+                    on: ColorPicker.picking
+                    onClicked: ColorPicker.pick()
                 }
             }
         }

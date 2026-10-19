@@ -41,6 +41,8 @@ Singleton {
         ccShowMedia: true,
         ccShowSysMon: true,
         ccShowShortcuts: true,
+        ccShowQuick: true,        // night light / VPN / record / color picker row
+        nightLightTemp: 4000,     // Kelvin, lower = warmer
 
         widgetClock: false,   // desktop widgets (modules/WidgetsLayer.qml); X / Y = -1 means the default spot
         widgetClockX: -1,
@@ -51,7 +53,9 @@ Singleton {
         widgetMediaX: -1,
         widgetMediaY: -1,
         widgetMediaHideIdle: false,  // true = hide the Now playing widget while no player is open (false = skeleton)
-        widgetMediaSize: "medium",   // "small" (album art only, 160x160) or "medium" (340x160)
+        widgetMediaSize: "medium",   // "small" (album art only, 160x160), "medium" (340x160) or "large" (340x340, lyrics + spectrum)
+        widgetMediaLyrics: true,     // synced lyrics from lrclib.net (medium: current line, large: three lines)
+        widgetMediaViz: true,        // cava audio spectrum
         widgetFont: "SF Pro Display",   // macOS-style typeface for the desktop widgets; falls back to Inter, then the shell font
         widgetSysmon: false,
         widgetSysmonX: -1,
@@ -59,6 +63,9 @@ Singleton {
         widgetTodo: false,
         widgetTodoX: -1,
         widgetTodoY: -1,
+
+        // launcher
+        launcherSearchEngine: "ddg",   // default engine for "?" (ddg | google | brave)
 
         // lock screen (services/Lock.qml, modules/LockScreen.qml)
         lockOnIdle: true,

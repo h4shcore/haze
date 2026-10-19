@@ -15,6 +15,11 @@
   xdg-utils,
   procps,
   dbus,
+  cava,
+  curl,
+  fd,
+  findutils,
+  gammastep,
   coreutils,
 }:
 
@@ -31,6 +36,11 @@ let
     xdg-utils # open screenshots / recordings
     procps # pgrep
     dbus # dbus-monitor: lock on `loginctl lock-session` and before suspend
+    cava # audio spectrum in the media widget
+    curl # synced lyrics (lrclib.net) and currency rates
+    fd # launcher file search (falls back to find)
+    findutils # find
+    gammastep # night light tile
     coreutils
   ];
 in

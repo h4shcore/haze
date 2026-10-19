@@ -118,7 +118,9 @@ PanelWindow {
                 { key: "ccWidth", type: "int", label: "Width", hint: "How wide the notch opens", min: 340, max: 520, step: 10, unit: " px" },
                 { key: "ccShowMedia", type: "bool", label: "Now playing card" },
                 { key: "ccShowSysMon", type: "bool", label: "System monitor", hint: "CPU, memory and temperature, right of the control center" },
-                { key: "ccShowShortcuts", type: "bool", label: "Shortcut strip", hint: "Launcher, clipboard, wallpapers, capture, power" }
+                { key: "ccShowShortcuts", type: "bool", label: "Shortcut strip", hint: "Launcher, clipboard, wallpapers, capture, power" },
+                { key: "ccShowQuick", type: "bool", label: "Quick toggles", hint: "Night light, VPN, record and color picker, under the big tiles" },
+                { key: "nightLightTemp", type: "int", label: "Night light warmth", hint: "Kelvin, lower is warmer. Toggle it off and on to apply", min: 2500, max: 6000, step: 100, unit: " K" }
             ] }
         ] },
         { id: "modules", label: "Modules", glyph: "\uf009", title: "Modules", sub: "Turn the docks around the border on or off", sections: [
@@ -135,6 +137,8 @@ PanelWindow {
                 { key: "widgetClock", type: "bool", label: "Clock", hint: "Big time and date" },
                 { key: "widgetMedia", type: "bool", label: "Now playing", hint: "Album art and controls for the active player" },
                 { key: "widgetMediaHideIdle", type: "bool", label: "Hide when nothing plays", hint: "Off shows a music-note skeleton instead" },
+                { key: "widgetMediaLyrics", type: "bool", label: "Synced lyrics", hint: "Now playing, medium and large. From lrclib.net, needs curl" },
+                { key: "widgetMediaViz", type: "bool", label: "Audio spectrum", hint: "Now playing, medium and large. Needs cava" },
                 { key: "widgetSysmon", type: "bool", label: "System monitor", hint: "CPU, memory and temperature" },
                 { key: "widgetTodo", type: "bool", label: "Todo list", hint: "Your tasks, click to tick" }
             ] },
@@ -144,9 +148,10 @@ PanelWindow {
                     { v: "medium", l: "Medium" }
                 ] },
                 { key: "widgetClockStacked", type: "bool", label: "Clock stacked", hint: "Small clock only. Hours over minutes" },
-                { key: "widgetMediaSize", type: "enum", label: "Now playing size", hint: "Small is a square showing only the album art", options: [
+                { key: "widgetMediaSize", type: "enum", label: "Now playing size", hint: "Small is just the album art, large adds lyrics and the spectrum", options: [
                     { v: "small", l: "Small" },
-                    { v: "medium", l: "Medium" }
+                    { v: "medium", l: "Medium" },
+                    { v: "large", l: "Large" }
                 ] }
             ] },
             { title: "Font", items: [
@@ -155,6 +160,15 @@ PanelWindow {
             { title: "Layout", items: [
                 { type: "action", action: "editWidgets", label: "Move widgets", hint: "Drag them where you want, then press Done (or Esc)", button: "Edit" },
                 { type: "action", action: "resetWidgets", label: "Reset positions", hint: "Back to the default spots", button: "Reset" }
+            ] }
+        ] },
+        { id: "launcher", label: "Launcher", glyph: "\uf002", title: "Launcher", sub: "Prefixes: = calc · : emoji · > run · / files · ? web · @ windows · ! system", sections: [
+            { title: "Web search", items: [
+                { key: "launcherSearchEngine", type: "chips", label: "Default engine", hint: "Used by ?terms. ?yt, ?gh, ?nix, ?w and ?maps pick another", options: [
+                    { v: "ddg", l: "DuckDuckGo" },
+                    { v: "google", l: "Google" },
+                    { v: "brave", l: "Brave" }
+                ] }
             ] }
         ] },
         { id: "lock", label: "Lock", glyph: "lock", title: "Lock screen", sub: "Locks on idle, suspend and loginctl lock-session", sections: [
@@ -178,7 +192,9 @@ PanelWindow {
                 { type: "info", label: "colors", hint: "~/.config/quickshell/colors.json (matugen)" }
             ] },
             { title: "IPC  ·  qs -c haze ipc call …", items: [
-                { type: "info", label: "launcher toggle | calc | emoji | run", hint: "Apps, calculator, emoji, commands" },
+                { type: "info", label: "launcher toggle | calc | emoji | run | files | web | windows | system", hint: "Apps, calculator, emoji, commands, files, web, windows, system actions" },
+                { type: "info", label: "nightlight toggle", hint: "Night light on / off" },
+                { type: "info", label: "colorpicker pick", hint: "Pick a color from the screen" },
                 { type: "info", label: "clipboard toggle", hint: "Clipboard history" },
                 { type: "info", label: "wallpaper toggle", hint: "Wallpaper picker" },
                 { type: "info", label: "capture toggle | region | window | record", hint: "Screenshots and recording" },

@@ -13,7 +13,7 @@ Singleton {
     readonly property var connected: Bluetooth.devices.values.filter(d => d.connected)
     readonly property string label: !enabled ? "Off"
         : connected.length === 0 ? "On"
-        : connected.length === 1 ? connected[0].name
+        : connected.length === 1 ? connected[0].name + (connected[0].batteryAvailable ? " · " + Math.round(connected[0].battery * 100) + "%" : "")
         : connected.length + " devices"
 
     // devices for the menu: connected first, then paired, then (while scanning) nearby ones

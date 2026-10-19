@@ -9,7 +9,11 @@ import qs.services
 // App launcher growing out of the bottom border (centered).
 // Type to search, Up/Down (or Ctrl+J/K, Tab) to move, Enter to launch, Esc to close.
 // Modes: "=2+2*3" calculator (math is also auto-detected), ":fire" emoji picker (Enter copies the result),
-// ">cmd" runs a shell command in a terminal (Ctrl+Enter: silently in the background).
+// ">cmd" runs a shell command in a terminal (Ctrl+Enter: silently in the background),
+// "/name" file search (Enter opens, Ctrl+Enter copies the path), "?terms" web search ("?yt lofi", "?gh quickshell"),
+// "@" window switcher (Enter focuses, Ctrl+Enter closes), "!" system actions (lock, suspend, reboot, night light…).
+// Plain queries also convert units and currency ("12 km to mi", "100 usd to eur") and surface system actions
+// when you type a clear name ("lock", "reboot", "dnd").
 Item {
     id: root
 
@@ -19,18 +23,24 @@ Item {
 
     readonly property bool open: LauncherState.open && LauncherState.mode === "apps" && active
     property string query: ""
-    readonly property string mode: query.startsWith(":") ? "emoji" : query.startsWith("=") ? "calc" : query.startsWith(">") ? "cmd" : "apps"
+    readonly property string mode: query.startsWith(":") ? "emoji" : query.startsWith("=") ? "calc" : query.startsWith(">") ? "cmd"
+        : query.startsWith("/") ? "file" : query.startsWith("?") ? "web" : query.startsWith("@") ? "win" : query.startsWith("!") ? "sys" : "apps"
     readonly property var results: {
         const q = query;
         if (mode === "emoji") return Emoji.search(q.slice(1));
         if (mode === "cmd") return Cmd.rows(q.slice(1));
+        if (mode === "file") return Files.results;
+        if (mode === "web") return Web.rows(q.slice(1));
+        if (mode === "win") return Windows.rows(q.slice(1));
+        if (mode === "sys") return Actions.rows(q.slice(1), false);
         if (mode === "calc") {
-            const c = Calc.force(q.slice(1));
+            const c = Calc.force(q.slice(1)) ?? Convert.auto(q.slice(1));
             return c ? [c] : [];
         }
-        const c = Calc.auto(q);
+        const c = Calc.auto(q) ?? Convert.auto(q);
+        const sys = Actions.rows(q, true);
         const apps = Apps.search(q);
-        return c ? [c, ...apps] : apps;
+        return [...(c ? [c] : []), ...sys, ...apps];
     }
     readonly property bool empty: results.length === 0
 
@@ -63,6 +73,23 @@ Item {
         onTriggered: root.settled = true
     }
 
+    // destructive system actions (log out, reboot, shut down) need a second Enter within 3 seconds
+    property string armed: ""
+    Timer {
+        id: armTimer
+        interval: 3000
+        onTriggered: root.armed = ""
+    }
+
+    // keep the window list fresh while "@" is showing
+    Timer {
+        running: root.open && root.mode === "win"
+        interval: 1500
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: Windows.refresh()
+    }
+
     function iconFor(entry) {
         const i = entry.icon || "";
         if (i.startsWith("/")) return "file://" + i;
@@ -81,7 +108,31 @@ Item {
             Cmd.run(r.text, !background);
             LauncherState.hide();
         } else if (r.kind === "calc" || r.kind === "emoji") {
+            if (r.text === "") return;      // still fetching currency rates
             Quickshell.execDetached(["wl-copy", "--", r.text]);
+            LauncherState.hide();
+        } else if (r.kind === "file") {
+            if (background) Quickshell.execDetached(["wl-copy", "--", r.path]);
+            else Quickshell.execDetached(["xdg-open", r.path]);
+            LauncherState.hide();
+        } else if (r.kind === "web") {
+            Web.open(r.url);
+            LauncherState.hide();
+        } else if (r.kind === "win") {
+            if (background) {
+                Windows.close(r.win);
+            } else {
+                Windows.focus(r.win);
+                LauncherState.hide();
+            }
+        } else if (r.kind === "sys") {
+            if (r.confirm && armed !== r.id) {
+                armed = r.id;
+                armTimer.restart();
+                return;
+            }
+            armed = "";
+            Actions.run(r.sys);
             LauncherState.hide();
         } else {
             root.launch(r.entry);
@@ -121,7 +172,11 @@ Item {
             if (root.open && LauncherState.preset !== "") root.applyPreset();
         }
     }
-    onQueryChanged: lv.currentIndex = 0
+    onQueryChanged: {
+        lv.currentIndex = 0;
+        armed = "";
+        Files.query = query.startsWith("/") ? query.slice(1).trim() : "";
+    }
 
     Timer {
         id: focusTimer
@@ -193,7 +248,9 @@ Item {
                 InkIcon {
                     x: 12
                     anchors.verticalCenter: parent.verticalCenter
-                    text: root.mode === "emoji" ? "\uf118" : root.mode === "calc" ? "\uf1ec" : root.mode === "cmd" ? "\uf120" : "\uf002"
+                    text: root.mode === "emoji" ? "\uf118" : root.mode === "calc" ? "\uf1ec" : root.mode === "cmd" ? "\uf120"
+                        : root.mode === "file" ? "folder" : root.mode === "web" ? "public" : root.mode === "win" ? "\uf2d0"
+                        : root.mode === "sys" ? "power_settings_new" : "\uf002"
                     color: Look.primary
                     pixelSize: 16
                     box: 28
@@ -225,7 +282,7 @@ Item {
                             root.move(-1);
                             ev.accepted = true;
                         } else if (ev.key === Qt.Key_Return || ev.key === Qt.Key_Enter) {
-                            root.launchCurrent(ctrl && root.mode === "cmd");
+                            root.launchCurrent(!!ctrl);
                             ev.accepted = true;
                         } else if (ev.key === Qt.Key_Escape) {
                             LauncherState.hide();
@@ -238,7 +295,7 @@ Item {
                     anchors.left: input.left
                     anchors.verticalCenter: parent.verticalCenter
                     visible: input.text === ""
-                    text: "Search apps…   = calc  ·  : emoji  ·  > run"
+                    text: "Search apps…   = calc  ·  : emoji  ·  > run  ·  / files  ·  ? web  ·  @ windows  ·  ! system"
                     color: Look.fgDim
                     font.pixelSize: 15
                 }
@@ -249,6 +306,10 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.mode === "calc" ? "calculator"
                         : root.mode === "cmd" ? "terminal"
+                        : root.mode === "file" ? (Files.searching ? "searching…" : root.results.length + " found")
+                        : root.mode === "web" ? "web"
+                        : root.mode === "win" ? root.results.length + " windows"
+                        : root.mode === "sys" ? "system"
                         : root.mode === "emoji" ? root.results.length + " emoji"
                         : root.results.length + (root.query === "" ? " apps" : " found")
                     color: Look.fgDim
@@ -305,10 +366,11 @@ Item {
                         spacing: 12
 
                         IconImage {
-                            visible: row.kind === "app"
+                            visible: row.kind === "app" || row.kind === "win"
                             Layout.preferredWidth: 34
                             Layout.preferredHeight: 34
-                            source: row.kind === "app" ? root.iconFor(row.modelData.entry) : ""
+                            source: row.kind === "app" ? root.iconFor(row.modelData.entry)
+                                : row.kind === "win" ? root.iconFor({ icon: row.modelData.icon }) : ""
                             scale: row.current ? 1.08 : 1
                             Behavior on scale { Anim { duration: Look.dur.fast } }
                         }
@@ -363,6 +425,24 @@ Item {
                             }
                         }
 
+                        // badge for files, web search and system actions
+                        Rectangle {
+                            visible: row.kind === "file" || row.kind === "web" || row.kind === "sys"
+                            Layout.preferredWidth: 34
+                            Layout.preferredHeight: 34
+                            radius: 17
+                            color: row.kind === "sys" && row.modelData.confirm && root.armed === row.modelData.id ? Look.error : Look.secondaryContainer
+
+                            InkIcon {
+                                anchors.centerIn: parent
+                                text: row.kind === "file" ? (row.modelData.dir ? "folder" : "\uf15c")
+                                    : row.kind === "web" ? "public" : (row.modelData.glyph ?? "")
+                                color: row.kind === "sys" && row.modelData.confirm && root.armed === row.modelData.id ? Look.surface : Look.primary
+                                pixelSize: 16
+                                box: 22
+                            }
+                        }
+
                         ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 0
@@ -370,8 +450,8 @@ Item {
                             Label {
                                 Layout.fillWidth: true
                                 text: row.kind === "app" ? row.modelData.entry.name
-                                    : row.kind === "calc" || row.kind === "cmd" ? row.modelData.title
-                                    : row.modelData.name
+                                    : row.kind === "emoji" ? row.modelData.name
+                                    : row.modelData.title
                                 font.bold: true
                                 font.pixelSize: row.kind === "calc" ? 17 : 14
                             }
@@ -380,9 +460,10 @@ Item {
                                 visible: text !== ""
                                 text: row.kind === "app" ? (row.modelData.entry.comment || row.modelData.entry.genericName || "")
                                     : row.kind === "calc" ? row.modelData.subtitle + "  ·  Enter to copy"
-                                    : row.kind === "cmd" ? row.modelData.subtitle
-                                    : (row.modelData.keys || "Enter to copy")
-                                color: Look.fgDim
+                                    : row.kind === "emoji" ? (row.modelData.keys || "Enter to copy")
+                                    : row.kind === "sys" && row.modelData.confirm && root.armed === row.modelData.id ? "Press Enter again to confirm"
+                                    : row.modelData.subtitle
+                                color: row.kind === "sys" && row.modelData.confirm && root.armed === row.modelData.id ? Look.error : Look.fgDim
                                 font.pixelSize: 11
                             }
                         }
@@ -421,8 +502,12 @@ Item {
             y: 14 + 46 + 10 + 12
             visible: root.empty
             opacity: root.open ? 1 : 0
-            text: root.mode === "calc" ? "Type an expression, e.g. 12*(3+4)"
+            text: root.mode === "calc" ? "Type an expression, e.g. 12*(3+4), or a conversion like 12 km to mi"
                 : root.mode === "cmd" ? "Type a command, e.g. htop"
+                : root.mode === "file" ? (Files.searching ? "Searching…" : root.query.length < 3 ? "Type part of a file or folder name" : "No files match “" + root.query.slice(1) + "”")
+                : root.mode === "web" ? "Type to search, e.g. ?yt lofi  ·  ?gh quickshell  ·  ?nix ripgrep  ·  ?w penguin"
+                : root.mode === "win" ? "No open windows match"
+                : root.mode === "sys" ? "No system action matches"
                 : root.mode === "emoji" ? "No emoji match “" + root.query.slice(1) + "”"
                 : root.query === "" ? "No applications found" : "No apps match “" + root.query + "”"
             color: Look.fgDim

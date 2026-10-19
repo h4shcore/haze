@@ -89,11 +89,11 @@ PanelWindow {
         }
     }
 
-    // ── now playing (small: album only · medium: full player; skeleton while idle unless hidden in Settings) ──
+    // ── now playing (small: album only · medium: player + current lyric · large: lyrics + spectrum; skeleton while idle unless hidden in Settings) ──
     DesktopWidget {
         id: mediaW
         name: "Media"
-        size: Settings.cfg.widgetMediaSize === "small" ? "small" : "medium"
+        size: Settings.cfg.widgetMediaSize === "small" ? "small" : Settings.cfg.widgetMediaSize === "large" ? "large" : "medium"
         surface: win.contentItem
         defaultX: 60
         defaultY: 280
@@ -103,6 +103,7 @@ PanelWindow {
             anchors.fill: parent
             anchors.margins: mediaW.size === "small" ? 1 : 18   // small: art fills the card, inside its border
             compact: mediaW.size === "small"
+            large: mediaW.size === "large"
         }
     }
 
