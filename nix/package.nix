@@ -14,6 +14,7 @@
   libnotify,
   xdg-utils,
   procps,
+  dbus,
   coreutils,
 }:
 
@@ -29,6 +30,7 @@ let
     libnotify # capture notifications
     xdg-utils # open screenshots / recordings
     procps # pgrep
+    dbus # dbus-monitor: lock on `loginctl lock-session` and before suspend
     coreutils
   ];
 in

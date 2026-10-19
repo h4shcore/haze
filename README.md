@@ -18,6 +18,8 @@ a notch that expands when you hover it, and little docks that grow out of the bo
 - **Clipboard history**, **wallpaper picker** (colors from the wallpaper via matugen), **screenshots and
   recording**, and a **power menu**.
 - **Notification server:** Haze is the notification daemon, with a notification panel in the notch.
+- **Lock screen:** blurred wallpaper, big clock and a password pill. Locks when idle, before suspend and on
+  `loginctl lock-session` (the power menu's Lock). See [Lock screen](#lock-screen).
 - **Settings app:** a floating window with search and a live preview. Everything applies instantly.
 
 ## Requirements
@@ -25,7 +27,9 @@ a notch that expands when you hover it, and little docks that grow out of the bo
 - Niri 26.04 or newer, or a recent Hyprland (Haze picks the right one on its own)
 - Quickshell 0.3 or newer
 - `grim`, `wl-clipboard`, `cliphist`, `wl-screenrec`, `wtype`, `matugen`, `brightnessctl`, `libnotify`,
-  `xdg-utils`, and NetworkManager (`nmcli`). The Nix package brings all but NetworkManager along.
+  `xdg-utils`, `dbus-monitor` (from `dbus`), and NetworkManager (`nmcli`). The Nix package brings all but
+  NetworkManager along.
+- A PAM service for the lock screen (`login` works on most distros, see [Lock screen](#lock-screen))
 - Fonts: [Rubik](https://github.com/googlefonts/rubik) and, optionally,
   [Material Symbols](https://github.com/google/material-design-icons) (falls back to Nerd Font symbols)
 
@@ -123,6 +127,30 @@ corner rounding to taste, for example `hl.config({ general = { gaps_out = 10 }, 
   example by adding `hl.exec_cmd("dbus-update-activation-environment --systemd --all")` to the
   `hyprland.start` hook, or just start Haze from that hook.
 
+## Lock screen
+
+Haze locks the session with `ext-session-lock` (Niri and Hyprland both support it), shows your last wallpaper
+blurred, and checks the password through PAM.
+
+- Locks after 10 idle minutes (Caffeine pauses it), before suspend, on `loginctl lock-session`, and with
+  `haze ipc call lock lock`. All of it is under Settings → Lock.
+- Type your password and press Enter. Backspace deletes, Ctrl+Backspace or Esc clears.
+- There is no IPC call to unlock; the password is the only way out.
+- **PAM service:** Haze uses `/etc/pam.d/login` by default. On NixOS add this to your system config and set
+  Settings → Lock → PAM service to `haze`:
+
+  ```nix
+  security.pam.services.haze = { };
+  ```
+
+- **If Haze crashes while locked,** the compositor keeps the screen locked. Switch to a TTY (Ctrl+Alt+F3),
+  start Haze again for your session, run `haze ipc call lock lock`, then type your password.
+
+```kdl
+// niri: lock from a key
+Mod+Alt+L { spawn "haze" "ipc" "call" "lock" "lock"; }
+```
+
 ## Colors (matugen)
 
 Haze reads `~/.config/quickshell/colors.json` live and runs `matugen image <file>` when you pick a wallpaper.
@@ -140,6 +168,7 @@ An example template and config are in [`extra`](extra). Without it, Haze uses a 
 | `power` | `toggle` `show` `hide` |
 | `capture` | `toggle` `region` `window` `fullscreen` `record` `stop` |
 | `settings` | `toggle` `show` `hide` |
+| `lock` | `lock` `locked` |
 
 ## Files Haze writes
 

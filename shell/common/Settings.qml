@@ -60,6 +60,14 @@ Singleton {
         widgetTodoX: -1,
         widgetTodoY: -1,
 
+        // lock screen (services/Lock.qml, modules/LockScreen.qml)
+        lockOnIdle: true,
+        lockIdleMinutes: 10,
+        lockScreenOff: true,        // turn the monitors off a while after locking
+        lockScreenOffSeconds: 30,
+        lockBlur: true,
+        lockPam: "login",           // PAM service used to check the password (/etc/pam.d/<name>)
+
         settingsX: 0,         // window offsets from their default spot (drag the title to move)
         settingsY: 0,
         todoX: 0,

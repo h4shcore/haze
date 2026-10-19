@@ -32,6 +32,16 @@ ShellRoot {
     }
 
     Cropper {}
+    LockScreen {}
+
+    // qs -c haze ipc call lock lock
+    // (no unlock call on purpose: the password is the only way out)
+    IpcHandler {
+        target: "lock"
+
+        function lock(): void { Lock.lock(); }
+        function locked(): bool { return Lock.locked; }
+    }
 
     // qs -c haze ipc call power toggle
     IpcHandler {

@@ -157,6 +157,21 @@ PanelWindow {
                 { type: "action", action: "resetWidgets", label: "Reset positions", hint: "Back to the default spots", button: "Reset" }
             ] }
         ] },
+        { id: "lock", label: "Lock", glyph: "lock", title: "Lock screen", sub: "Locks on idle, suspend and loginctl lock-session", sections: [
+            { title: "Idle", items: [
+                { key: "lockOnIdle", type: "bool", label: "Lock when idle", hint: "Caffeine pauses it" },
+                { key: "lockIdleMinutes", type: "int", label: "Lock after", hint: "Minutes without input", min: 1, max: 60, step: 1, unit: " min" },
+                { key: "lockScreenOff", type: "bool", label: "Turn the screen off", hint: "A little while after locking" },
+                { key: "lockScreenOffSeconds", type: "int", label: "Screen off after", hint: "Seconds after locking", min: 10, max: 300, step: 10, unit: " s" }
+            ] },
+            { title: "Look", items: [
+                { key: "lockBlur", type: "bool", label: "Blur the wallpaper" }
+            ] },
+            { title: "Password", items: [
+                { key: "lockPam", type: "text", label: "PAM service", hint: "/etc/pam.d/<name>. On NixOS add security.pam.services.haze = {}; and use haze. Press Enter to apply", placeholder: "login" },
+                { type: "action", action: "lockNow", label: "Lock now", hint: "Same as: ipc call lock lock", button: "Lock" }
+            ] }
+        ] },
         { id: "about", label: "About", glyph: "\uf05a", title: "About", sub: "Where things live and how to control the shell", sections: [
             { title: "Files", items: [
                 { type: "info", label: "settings", hint: "~/.config/quickshell/haze-settings.json" },
@@ -167,6 +182,7 @@ PanelWindow {
                 { type: "info", label: "clipboard toggle", hint: "Clipboard history" },
                 { type: "info", label: "wallpaper toggle", hint: "Wallpaper picker" },
                 { type: "info", label: "capture toggle | region | window | record", hint: "Screenshots and recording" },
+                { type: "info", label: "lock lock", hint: "Lock the session (unlock with your password)" },
                 { type: "info", label: "power toggle", hint: "Lock, log out, suspend, reboot, shut down" },
                 { type: "info", label: "widgets edit | done", hint: "Move the desktop widgets" },
                 { type: "info", label: "todo toggle", hint: "Floating todo list" },
@@ -208,6 +224,9 @@ PanelWindow {
         } else if (id === "resetWidgets") {
             Settings.reset(["widgetClockX", "widgetClockY", "widgetMediaX", "widgetMediaY", "widgetSysmonX", "widgetSysmonY",
                 "widgetTodoX", "widgetTodoY"]);
+        } else if (id === "lockNow") {
+            SettingsUi.hide();
+            Lock.lock();
         } else if (id === "reapply") {
             if (Wallpaper.current !== "") Wallpaper.apply(Wallpaper.current);
         } else if (id === "resetAll") {
