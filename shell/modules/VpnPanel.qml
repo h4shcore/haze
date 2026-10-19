@@ -101,6 +101,7 @@ Item {
                 TextButton {
                     text: row.c.active ? "Disconnect" : "Connect"
                     primary: !row.c.active
+                    quiet: row.c.active
                     enabled: !Vpn.busy
                     onClicked: row.c.active ? Vpn.disconnect(row.modelData) : Vpn.connect(row.modelData)
                 }
@@ -149,6 +150,7 @@ Item {
             TextButton {
                 text: root.tsUp ? "Disconnect" : "Connect"
                 primary: !root.tsUp
+                quiet: root.tsUp
                 enabled: !Vpn.busy && root.tsi !== null && root.tsi.state !== "NeedsLogin"
                 onClicked: Vpn.tsSet(!root.tsUp)
             }

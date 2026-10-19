@@ -8,6 +8,7 @@ Rectangle {
     property string text
     property bool primary: false
     property bool danger: false
+    property bool quiet: false       // neutral, for buttons that sit on a highlighted (connected) row
     property bool confirm: false
     property bool armed: false
     signal clicked
@@ -20,6 +21,7 @@ Rectangle {
     color: armed ? Look.error
         : primary ? Look.primary
         : danger ? Qt.alpha(Look.error, mouse.containsMouse ? 0.32 : 0.16)
+        : quiet ? Qt.alpha(Look.fg, mouse.containsMouse ? 0.22 : 0.13)
         : mouse.containsMouse ? Look.surfaceHiest : Look.secondaryContainer
     Behavior on color { ColorAnimation { duration: 150 } }
     Behavior on scale { Anim { duration: Look.dur.fast } }

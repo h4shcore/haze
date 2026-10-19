@@ -40,6 +40,8 @@ Item {
         width: parent.width
         spacing: 2
 
+        Item { width: 1; height: 6 }
+
         Label {
             x: 24
             width: parent.width - 48
@@ -80,6 +82,7 @@ Item {
                 TextButton {
                     text: row.d.state === "connected" ? "Disconnect" : "Connect"
                     primary: row.d.state !== "connected"
+                    quiet: row.d.state === "connected"
                     enabled: !Ethernet.busy && row.d.state !== "unavailable"
                     onClicked: row.d.state === "connected" ? Ethernet.disconnect(row.modelData) : Ethernet.connect(row.modelData)
                 }
@@ -184,6 +187,6 @@ Item {
             font.pixelSize: 11
         }
 
-        Item { width: 1; height: 8 }
+        Item { width: 1; height: 6 }
     }
 }

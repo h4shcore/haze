@@ -104,6 +104,7 @@ Item {
                     TextButton {
                         text: Bt.busy(row.modelData) ? "…" : row.modelData.connected ? "Disconnect" : "Connect"
                         primary: !row.modelData.connected
+                        quiet: row.modelData.connected
                         enabled: !Bt.busy(row.modelData)
                         onClicked: Bt.activate(row.modelData)
                     }

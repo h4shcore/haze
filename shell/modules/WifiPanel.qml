@@ -159,6 +159,7 @@ Item {
                     TextButton {
                         text: row.n.active ? "Disconnect" : "Connect"
                         primary: !row.n.active
+                        quiet: row.n.active
                         enabled: Network.connecting === ""
                         onClicked: row.n.active ? Network.disconnect(row.modelData) : root.join(row.n)
                     }
