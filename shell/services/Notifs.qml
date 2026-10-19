@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Notifications
+import qs.common
 
 // Notification server + inbox, per-app mute and a history that survives restarts
 // (~/.local/state/quickshell-haze/notif-history.json).
