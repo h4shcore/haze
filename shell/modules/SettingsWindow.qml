@@ -14,7 +14,7 @@ import qs.services
 // To add an option: add it to Settings.defaults (common/Settings.qml), then add one line to `pages` below.
 //   types: bool · enum (options: [{ v, l }], segmented) · chips (options, wraps) · text (placeholder) · int / real (min, max, step, unit)
 //          action (action: id, button: text) · live (live: wifi | bt | vpn | nightlight, a toggle bound to a service) · info (mono label) · preview
-//          panel (panel: wifi | bt | vpn, a full connectivity list, see WifiPanel / BtPanel / VpnPanel)
+//          panel (panel: wifi | eth | bt | vpn, a full connectivity list, see WifiPanel / EthPanel / BtPanel / VpnPanel)
 PanelWindow {
     id: win
 
@@ -124,10 +124,13 @@ PanelWindow {
                 { key: "nightLightTemp", type: "int", label: "Night light warmth", hint: "Kelvin, lower is warmer. Toggle it off and on to apply", min: 2500, max: 6000, step: 100, unit: " K" }
             ] }
         ] },
-        { id: "network", label: "Connectivity", glyph: "\uf1eb", title: "Connectivity", sub: "Wi-Fi, Bluetooth and VPN", sections: [
+        { id: "network", label: "Connectivity", glyph: "\uf1eb", title: "Connectivity", sub: "Wi-Fi, Ethernet, Bluetooth and VPN", sections: [
             { title: "Wi-Fi", items: [
                 { type: "live", live: "wifi", label: "Wi-Fi", hint: "" },
                 { type: "panel", panel: "wifi" }
+            ] },
+            { title: "Ethernet", items: [
+                { type: "panel", panel: "eth" }
             ] },
             { title: "Bluetooth", items: [
                 { type: "live", live: "bt", label: "Bluetooth", hint: "" },
@@ -763,6 +766,7 @@ PanelWindow {
                                                     case "info": return cInfo;
                                                     case "preview": return cPreview;
                                                     case "panel": return row.modelData.panel === "wifi" ? cWifi
+                                                        : row.modelData.panel === "eth" ? cEth
                                                         : row.modelData.panel === "bt" ? cBt : cVpn;
                                                     default: return cNum;
                                                     }
@@ -1009,6 +1013,7 @@ PanelWindow {
                                             }
 
                                             Component { id: cWifi; WifiPanel {} }
+                                            Component { id: cEth; EthPanel {} }
                                             Component { id: cBt; BtPanel {} }
                                             Component { id: cVpn; VpnPanel {} }
 

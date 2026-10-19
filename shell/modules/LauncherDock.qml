@@ -12,6 +12,7 @@ import qs.services
 // ">cmd" runs a shell command in a terminal (Ctrl+Enter: silently in the background),
 // "/name" file search (Enter opens, Ctrl+Enter copies the path), "?terms" web search ("?yt lofi", "?gh quickshell"),
 // "@" window switcher (Enter focuses, Ctrl+Enter closes), "!" system actions (lock, suspend, reboot, night light…).
+// "timer 10m tea" starts a quick timer (also "timer 1h30m", "timer 90s", "timer 1:30"); "timer" alone lists running ones.
 // Plain queries also convert units and currency ("12 km to mi", "100 usd to eur") and surface system actions
 // when you type a clear name ("lock", "reboot", "dnd").
 Item {
@@ -39,8 +40,9 @@ Item {
         }
         const c = Calc.auto(q) ?? Convert.auto(q);
         const sys = Actions.rows(q, true);
+        const timers = Timers.rows(q);
         const apps = Apps.search(q);
-        return [...(c ? [c] : []), ...sys, ...apps];
+        return [...(c ? [c] : []), ...timers, ...sys, ...apps];
     }
     readonly property bool empty: results.length === 0
 
@@ -124,6 +126,13 @@ Item {
             } else {
                 Windows.focus(r.win);
                 LauncherState.hide();
+            }
+        } else if (r.kind === "timer") {
+            if (r.action === "start") {
+                Timers.start(r.ms, r.label);
+                LauncherState.hide();
+            } else if (r.action === "cancel") {
+                Timers.cancel(r.tid);
             }
         } else if (r.kind === "sys") {
             if (r.confirm && armed !== r.id) {
@@ -427,7 +436,7 @@ Item {
 
                         // badge for files, web search and system actions
                         Rectangle {
-                            visible: row.kind === "file" || row.kind === "web" || row.kind === "sys"
+                            visible: row.kind === "file" || row.kind === "web" || row.kind === "sys" || row.kind === "timer"
                             Layout.preferredWidth: 34
                             Layout.preferredHeight: 34
                             radius: 17
@@ -436,7 +445,7 @@ Item {
                             InkIcon {
                                 anchors.centerIn: parent
                                 text: row.kind === "file" ? (row.modelData.dir ? "folder" : "\uf15c")
-                                    : row.kind === "web" ? "public" : (row.modelData.glyph ?? "")
+                                    : row.kind === "web" ? "public" : row.kind === "timer" ? "timer" : (row.modelData.glyph ?? "")
                                 color: row.kind === "sys" && row.modelData.confirm && root.armed === row.modelData.id ? Look.surface : Look.primary
                                 pixelSize: 16
                                 box: 22
@@ -451,6 +460,7 @@ Item {
                                 Layout.fillWidth: true
                                 text: row.kind === "app" ? row.modelData.entry.name
                                     : row.kind === "emoji" ? row.modelData.name
+                                    : row.kind === "timer" && row.modelData.action === "cancel" ? row.modelData.label + "  ·  " + Timers.fmt(row.modelData.end - Timers.now)
                                     : row.modelData.title
                                 font.bold: true
                                 font.pixelSize: row.kind === "calc" ? 17 : 14

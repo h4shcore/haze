@@ -53,7 +53,7 @@ Singleton {
         "mic_off": "\uf131",
         "coffee": "\uf0f4", "bolt": "\uf0e7", "eco": "\uf06c", "speed": "\uf0e4", "widgets": "\uf2d2",
         "nightlight": "\uf186", "vpn_key": "\uf084", "colorize": "\uf1fb", "folder": "\uf07b", "public": "\uf0ac",
-        "settings": "\uf013", "stop": "\uf04d", "music_note": "\uf001", "arrow_forward": "\uf061", "error": "\uf06a"
+        "settings": "\uf013", "timer": "\uf017", "lan": "\uf0e8", "stop": "\uf04d", "music_note": "\uf001", "arrow_forward": "\uf061", "error": "\uf06a"
     })
 
     readonly property var toNerd: {

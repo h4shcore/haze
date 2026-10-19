@@ -149,7 +149,8 @@ Item {
                     title: modelData
                     subtitle: Network.connecting === modelData ? "Connecting…"
                         : [n.active ? "Connected" : n.known ? "Saved" : n.secure ? "Secured" : "Open",
-                           n.band, n.signal + "%"].filter(s => s !== "").join(" · ")
+                           n.band, n.signal + "%",
+                           n.active && Network.speed.rx > 0 ? "↓ " + Network.fmtRate(Network.speed.down) + "  ↑ " + Network.fmtRate(Network.speed.up) : ""].filter(s => s !== "").join(" · ")
                     active: n.active
                     expandable: true
                     expanded: root.openSsid === modelData
@@ -178,6 +179,8 @@ Item {
                                 { k: "IP address", v: row.n.active ? Network.info.ip : "" },
                                 { k: "Gateway", v: row.n.active ? Network.info.gateway : "" },
                                 { k: "DNS", v: row.n.active ? Network.info.dns.join(", ") : "" },
+                                { k: "Downloaded", v: row.n.active && Network.speed.rx > 0 ? Network.fmtBytes(Network.speed.rx) : "" },
+                                { k: "Uploaded", v: row.n.active && Network.speed.rx > 0 ? Network.fmtBytes(Network.speed.tx) : "" },
                                 { k: "BSSID", v: row.n.bssid }
                             ]
                         }

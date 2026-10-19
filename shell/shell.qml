@@ -10,7 +10,7 @@ ShellRoot {
         PerScreen {}
     }
 
-    // qs -c haze ipc call launcher toggle | show | hide | calc | emoji | run | files | web | windows | system
+    // qs -c haze ipc call launcher toggle | show | hide | calc | emoji | run | files | web | windows | system | timer
     IpcHandler {
         target: "launcher"
 
@@ -38,6 +38,10 @@ ShellRoot {
         }
         function windows(): void {
             LauncherState.preset = "@";
+            LauncherState.show();
+        }
+        function timer(): void {
+            LauncherState.preset = "timer ";
             LauncherState.show();
         }
         function system(): void {

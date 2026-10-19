@@ -21,11 +21,13 @@ a notch that expands when you hover it, and little docks that grow out of the bo
   inline reply (for apps that support it), per-app mute (the bell on a card, or Settings → Notifications) and a History
   tab that survives restarts.
 - **Control center extras:** a night light tile in the bento grid. The Bluetooth tile shows the battery of a single
-  connected device. Settings → Connectivity has full Wi-Fi (scan, join, hidden networks, IP details, auto-connect,
-  forget), Bluetooth (pair, connect, trust, forget, discoverable) and VPN (NetworkManager / WireGuard / OpenVPN profiles,
+  connected device. Settings → Connectivity has full Wi-Fi (scan, join, hidden networks, IP details, live speed, auto-connect,
+  forget), Ethernet (link state, IP details, live speed, auto-connect, DHCP or manual address), Bluetooth (pair, connect, trust, forget, discoverable) and VPN (NetworkManager / WireGuard / OpenVPN profiles,
   Tailscale with exit nodes, config import) pages.
 - **Now playing widget:** a large size with synced lyrics (lrclib.net) and an audio spectrum (cava); the medium size
   shows the line being sung.
+- **Quick timers:** `timer 10m`, `timer 1h30m tea`, `timer 90s` or `timer 1:30` in the launcher; Enter starts it, a
+  notification fires when it ends, and `timer` alone lists running ones (Enter cancels). `ipc call launcher timer` opens it.
 - **Launcher extras:** `/` file search, `?` web search, `@` window switcher, `!` system actions, and unit / currency
   conversion (`12 km to mi`, `100 usd to eur`). See [Launcher](#launcher).
 - **Lock screen:** blurred wallpaper, big clock and a password pill. Locks when idle, before suspend and on

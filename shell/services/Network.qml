@@ -21,6 +21,28 @@ Singleton {
     property var autoMap: ({})           // profile name -> auto-connect on?
     property var info: ({ device: "", ip: "", gateway: "", dns: [] })
 
+    // live throughput of the wifi device (only sampled while the Settings panel is open)
+    property var speed: ({ down: 0, up: 0, rx: 0, tx: 0 })   // bytes/s and totals since boot
+    property real lastRx: -1
+    property real lastTx: 0
+    property real lastT: 0
+
+    onWantDetailsChanged: {
+        if (wantDetails) return;
+        lastRx = -1;
+        speed = { down: 0, up: 0, rx: 0, tx: 0 };
+    }
+
+    function fmtBytes(b) {
+        if (b < 1024) return Math.round(b) + " B";
+        const u = ["KB", "MB", "GB", "TB"];
+        let v = b / 1024;
+        let i = 0;
+        while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+        return (v >= 100 ? v.toFixed(0) : v.toFixed(1)) + " " + u[i];
+    }
+    function fmtRate(b) { return fmtBytes(b) + "/s"; }
+
     // saved profiles that are not in range right now
     readonly property var saved: known.filter(k => !raw.some(n => n.ssid === k))
 
@@ -196,6 +218,38 @@ Singleton {
                 root.info = o;
             }
         }
+    }
+
+    Process {
+        id: speedProc
+        command: ["cat", "/proc/net/dev"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const dev = root.info.device;
+                if (dev === "") return;
+                for (const line of text.split("\n")) {
+                    const i = line.indexOf(":");
+                    if (i < 0 || line.slice(0, i).trim() !== dev) continue;
+                    const f = line.slice(i + 1).trim().split(/\s+/).map(Number);
+                    const rx = f[0], tx = f[8], t = Date.now();
+                    if (root.lastRx >= 0 && t > root.lastT) {
+                        const dt = (t - root.lastT) / 1000;
+                        root.speed = { down: Math.max(0, (rx - root.lastRx) / dt), up: Math.max(0, (tx - root.lastTx) / dt), rx: rx, tx: tx };
+                    } else root.speed = { down: 0, up: 0, rx: rx, tx: tx };
+                    root.lastRx = rx;
+                    root.lastTx = tx;
+                    root.lastT = t;
+                    return;
+                }
+            }
+        }
+    }
+
+    Timer {
+        interval: 1000
+        repeat: true
+        running: root.wantDetails && root.info.device !== ""
+        onTriggered: if (!speedProc.running) speedProc.running = true
     }
 
     Process {
