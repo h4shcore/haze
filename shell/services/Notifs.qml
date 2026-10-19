@@ -31,7 +31,7 @@ Singleton {
         if (app === "" || isMuted(app)) return;
         Settings.set("mutedApps", mutedList.concat([app]).join(", "));
         for (const e of list)
-            if (isMuted(e.notif.appName) || e.notif.appName === app) e.popup = false;
+            if (e.notif && isMuted(e.notif.appName)) e.popup = false;
     }
 
     function unmute(app) {
@@ -123,13 +123,13 @@ Singleton {
         id: entry
 
         required property Notification notif
-        readonly property bool critical: notif.urgency === NotificationUrgency.Critical
+        readonly property bool critical: notif?.urgency === NotificationUrgency.Critical
         // muted apps get no toast (critical ones still do), they stay in the inbox
-        property bool popup: !root.dnd && (critical || !root.isMuted(notif.appName))
+        property bool popup: !root.dnd && (critical || !root.isMuted(notif?.appName))
 
         readonly property Timer timer: Timer {
             running: entry.popup && !entry.critical && root.replying !== entry
-            interval: entry.notif.expireTimeout > 0 ? entry.notif.expireTimeout * 1000 : 6000
+            interval: (entry.notif?.expireTimeout ?? 0) > 0 ? entry.notif.expireTimeout * 1000 : 6000
             onTriggered: entry.popup = false
         }
 
