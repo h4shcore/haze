@@ -86,7 +86,7 @@ Singleton {
             "sh", profile, addr, gateway, dns.replace(/,/g, " ").trim()]);
     }
 
-    function unescape(v) { return v.replace(/\\:/g, ":"); }
+    function unesc(v) { return v.replace(/\\:/g, ":"); }
 
     Process {
         id: listProc
@@ -142,7 +142,7 @@ Singleton {
                     if (i < 0) continue;
                     const k = line.slice(0, i);
                     const v = line.slice(i + 1);
-                    if (k === "GENERAL.HWADDR") cur.mac = root.unescape(v);
+                    if (k === "GENERAL.HWADDR") cur.mac = root.unesc(v);
                     else if (k.startsWith("IP4.ADDRESS") && cur.ip === "") cur.ip = v;
                     else if (k === "IP4.GATEWAY") cur.gateway = v;
                     else if (k.startsWith("IP4.DNS")) cur.dns.push(v);
