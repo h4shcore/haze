@@ -34,10 +34,12 @@ PanelWindow {
     readonly property Item cur: expanded ? (view === "notifs" ? notifPanel : view === "cal" ? calPanel : cc) : (songShown ? songToast : null)
 
     // notch geometry
+    // top of the panel area: with the battery readout pill-less, pillHeight leaves a 10px gap under its glyph
+    readonly property real panelTop: Look.pillHeight
     readonly property real pillW: clock.implicitWidth + Look.pad * 2
     readonly property real targetW: Math.max(pillW, cur ? cur.implicitWidth + Look.pad * 2 : 0)
     readonly property real targetH: songShowing ? Look.border + 10 + songToast.implicitHeight + 12
-                                                 : Look.pillHeight + (cur ? cur.implicitHeight + Look.pad : 0)
+                                                 : (cur ? panelTop + cur.implicitHeight + Look.pad : Look.pillHeight)
     property real bodyW: targetW
     property real bodyH: targetH
     property real bodyR: cur ? Look.panelRadius : Look.notchRadius
@@ -325,7 +327,7 @@ PanelWindow {
                 BatteryChip {
                     id: batChip
                     anchors.left: parent.left
-                    anchors.leftMargin: Look.pad - 6
+                    anchors.leftMargin: Look.pad
                     anchors.verticalCenter: parent.verticalCenter
                     visible: Battery.present
                     opacity: win.expanded ? 1 : 0
@@ -361,7 +363,7 @@ PanelWindow {
             ControlCenter {
                 id: cc
                 anchors.horizontalCenter: parent.horizontalCenter
-                y: Look.pillHeight
+                y: win.panelTop
                 width: implicitWidth
                 shown: win.expanded && win.view === "main"
                 onOpenNotifs: win.view = "notifs"
@@ -383,7 +385,7 @@ PanelWindow {
             CalendarPanel {
                 id: calPanel
                 anchors.horizontalCenter: parent.horizontalCenter
-                y: Look.pillHeight
+                y: win.panelTop
                 width: implicitWidth
                 shown: win.expanded && win.view === "cal"
                 opacity: shown ? 1 : 0
@@ -394,7 +396,7 @@ PanelWindow {
             NotifPanel {
                 id: notifPanel
                 anchors.horizontalCenter: parent.horizontalCenter
-                y: Look.pillHeight
+                y: win.panelTop
                 width: implicitWidth
                 opacity: win.expanded && win.view === "notifs" ? 1 : 0
                 visible: opacity > 0

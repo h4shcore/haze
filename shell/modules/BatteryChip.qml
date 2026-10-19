@@ -3,8 +3,8 @@ import QtQuick.Layouts
 import qs.common
 import qs.services
 
-// Battery pill: drawn battery with a live fill, percentage, and the time estimate
-// sliding out on hover.
+// Battery readout: drawn battery with a live fill, percentage, and the time estimate
+// sliding out on hover. No background pill.
 Rectangle {
     id: root
 
@@ -12,18 +12,17 @@ Rectangle {
     readonly property color tint: Battery.low ? Look.error : (Battery.charging ? Look.primary : Look.fg)
     readonly property bool showEta: hovered && Battery.eta !== ""
 
-    implicitWidth: row.implicitWidth + 24
+    implicitWidth: row.implicitWidth
     implicitHeight: Look.pillHeight - 10
     radius: height / 2
-    color: Qt.alpha(tint, hovered ? 0.2 : 0.09)
+    color: "transparent"
     scale: mouse.pressed ? 0.96 : 1
 
-    Behavior on color { ColorAnimation { duration: 220 } }
     Behavior on scale { Anim { duration: Look.dur.fast } }
 
     RowLayout {
         id: row
-        x: 12
+        x: 0
         anchors.verticalCenter: parent.verticalCenter
         spacing: 8
 
