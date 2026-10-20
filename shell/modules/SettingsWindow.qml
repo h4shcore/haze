@@ -14,6 +14,7 @@ import qs.services
 // To add an option: add it to Settings.defaults (common/Settings.qml), then add one line to `pages` below.
 //   types: bool · enum (options: [{ v, l }], segmented) · chips (options, wraps) · text (placeholder) · int / real (min, max, step, unit)
 //          action (action: id, button: text) · live (live: wifi | bt | vpn | nightlight, a toggle bound to a service) · info (mono label) · preview
+//          order (choices: [{ v, l }], removable: bool, a reorderable comma-separated list; removable ones can be hidden)
 //          panel (panel: wifi | eth | bt | vpn, a full connectivity list, see WifiPanel / EthPanel / BtPanel / VpnPanel)
 PanelWindow {
     id: win
@@ -142,6 +143,47 @@ PanelWindow {
                 { key: "ccShowShortcuts", type: "bool", label: "Shortcut strip", hint: "Launcher, clipboard, wallpapers, capture, power" },
                 { type: "live", live: "nightlight", label: "Night light", hint: "Also a tile in the control center" },
                 { key: "nightLightTemp", type: "int", label: "Night light warmth", hint: "Kelvin, lower is warmer. Toggle it off and on to apply", min: 2500, max: 6000, step: 100, unit: " K" }
+            ] },
+            { title: "Control center size", items: [
+                { key: "ccTilesHeight", type: "int", label: "Toggle area height", hint: "The toggles and the sliders beside them", min: 120, max: 260, step: 4, unit: " px" },
+                { key: "ccStripHeight", type: "int", label: "Shortcut strip height", min: 40, max: 64, step: 2, unit: " px" },
+                { key: "ccGap", type: "int", label: "Spacing", hint: "Gap between cards", min: 4, max: 20, step: 1, unit: " px" },
+                { key: "ccCardRadius", type: "int", label: "Card corners", hint: "The media card and the strip are a little rounder", min: 6, max: 30, step: 1, unit: " px" },
+                { key: "ccSysMonWidth", type: "int", label: "System monitor width", min: 110, max: 200, step: 10, unit: " px" },
+                { key: "ccTileSubtitles", type: "bool", label: "Toggle subtitles", hint: "The status line under each toggle name" },
+                { key: "ccShowSliders", type: "bool", label: "Volume and brightness sliders" }
+            ] },
+            { title: "Control center layout", items: [
+                { key: "ccOrder", type: "order", label: "Card order", hint: "Top to bottom. Hide a card with its switch above", removable: false, choices: [
+                    { v: "tiles", l: "Toggles" },
+                    { v: "media", l: "Now playing" },
+                    { v: "shortcuts", l: "Shortcuts" }
+                ] },
+                { key: "ccTiles", type: "order", label: "Toggles", hint: "Order and which ones show. An odd last toggle stretches across", removable: true, choices: [
+                    { v: "wifi", l: "Wi-Fi" },
+                    { v: "bt", l: "Bluetooth" },
+                    { v: "focus", l: "Focus" },
+                    { v: "inbox", l: "Inbox" },
+                    { v: "night", l: "Night light" }
+                ] },
+                { key: "ccShortcuts", type: "order", label: "Shortcut strip", hint: "Order and which buttons show. Without the Settings button, open this with: ipc call settings toggle", removable: true, choices: [
+                    { v: "apps", l: "Apps" },
+                    { v: "clip", l: "Clipboard" },
+                    { v: "wall", l: "Wallpapers" },
+                    { v: "cap", l: "Capture" },
+                    { v: "power", l: "Power" },
+                    { v: "caf", l: "Caffeine" },
+                    { v: "pwr", l: "Power profile" },
+                    { v: "set", l: "Settings" }
+                ] },
+                { key: "ccSlidersSide", type: "enum", label: "Sliders side", options: [
+                    { v: "left", l: "Left" },
+                    { v: "right", l: "Right" }
+                ] },
+                { key: "ccSysMonSide", type: "enum", label: "System monitor side", options: [
+                    { v: "left", l: "Left" },
+                    { v: "right", l: "Right" }
+                ] }
             ] }
         ] },
         { id: "network", label: "Connectivity", glyph: "\uf1eb", title: "Connectivity", sub: "Wi-Fi, Ethernet, Bluetooth and VPN", sections: [
@@ -403,7 +445,7 @@ PanelWindow {
                 SettingsUi.hide();
             } else if (ev.key === Qt.Key_Slash || (ev.key === Qt.Key_F && (ev.modifiers & Qt.ControlModifier))) {
                 search.forceActiveFocus();
-            } else if ((ev.modifiers & Qt.AltModifier) && ev.key >= Qt.Key_1 && ev.key < Qt.Key_1 + win.pages.length) {
+            } else if ((ev.modifiers & Qt.AltModifier) && ev.key >= Qt.Key_1 && ev.key < Qt.Key_1 + Math.min(9, win.pages.length)) {
                 win.pageIndex = ev.key - Qt.Key_1;
                 search.text = "";
             } else {
@@ -780,6 +822,7 @@ PanelWindow {
                                                     case "bool": return cBool;
                                                     case "enum": return cEnum;
                                                     case "chips": return cChips;
+                                                    case "order": return cOrder;
                                                     case "text": return cText;
                                                     case "action": return cAction;
                                                     case "live": return cLive;
@@ -969,6 +1012,168 @@ PanelWindow {
                                                                         anchors.fill: parent
                                                                         hoverEnabled: true
                                                                         onClicked: Settings.set(row.key, chip.modelData.v)
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            Component {
+                                                id: cOrder
+
+                                                Item {
+                                                    id: ord
+
+                                                    readonly property var choices: row.modelData.choices ?? []
+                                                    readonly property bool removable: row.modelData.removable === true
+                                                    readonly property var cur: Settings.listOf(row.key, choices.map(c => c.v), !removable)
+                                                    readonly property var hidden: choices.map(c => c.v).filter(k => cur.indexOf(k) < 0)
+
+                                                    function name(k) {
+                                                        const c = choices.find(o => o.v === k);
+                                                        return c ? c.l : k;
+                                                    }
+                                                    function save(list) { Settings.set(row.key, list.join(",")); }
+                                                    function move(i, d) {
+                                                        const l = cur.slice();
+                                                        const j = i + d;
+                                                        if (j < 0 || j >= l.length) return;
+                                                        const t = l[i];
+                                                        l[i] = l[j];
+                                                        l[j] = t;
+                                                        save(l);
+                                                    }
+                                                    function drop(i) {
+                                                        const l = cur.slice();
+                                                        l.splice(i, 1);
+                                                        save(l);
+                                                    }
+                                                    function add(k) { save(cur.concat([k])); }
+
+                                                    implicitHeight: ordCol.height + 40
+
+                                                    Column {
+                                                        id: ordCol
+                                                        x: 22
+                                                        y: 20
+                                                        width: parent.width - 44
+                                                        spacing: 14
+
+                                                        Column {
+                                                            spacing: 3
+                                                            Label {
+                                                                text: row.modelData.label
+                                                                font.bold: true
+                                                                font.pixelSize: 14
+                                                            }
+                                                            Label {
+                                                                visible: text !== ""
+                                                                text: row.modelData.hint ?? ""
+                                                                color: Look.fgDim
+                                                                font.pixelSize: 11
+                                                            }
+                                                        }
+
+                                                        Flow {
+                                                            width: parent.width
+                                                            spacing: 8
+
+                                                            Repeater {
+                                                                model: ord.cur
+
+                                                                Rectangle {
+                                                                    id: oc
+
+                                                                    required property var modelData
+                                                                    required property int index
+
+                                                                    width: ocRow.implicitWidth + 12
+                                                                    height: 36
+                                                                    radius: 18
+                                                                    color: Qt.alpha(Look.fg, 0.07)
+
+                                                                    Row {
+                                                                        id: ocRow
+                                                                        x: 6
+                                                                        anchors.verticalCenter: parent.verticalCenter
+                                                                        spacing: 2
+
+                                                                        IconButton {
+                                                                            glyph: "\uf104"
+                                                                            size: 26
+                                                                            enabled: oc.index > 0
+                                                                            onClicked: ord.move(oc.index, -1)
+                                                                        }
+                                                                        Label {
+                                                                            anchors.verticalCenter: parent.verticalCenter
+                                                                            leftPadding: 4
+                                                                            rightPadding: 4
+                                                                            text: ord.name(oc.modelData)
+                                                                            font.pixelSize: 12
+                                                                            font.bold: true
+                                                                        }
+                                                                        IconButton {
+                                                                            glyph: "\uf105"
+                                                                            size: 26
+                                                                            enabled: oc.index < ord.cur.length - 1
+                                                                            onClicked: ord.move(oc.index, 1)
+                                                                        }
+                                                                        IconButton {
+                                                                            visible: ord.removable
+                                                                            glyph: "\uf00d"
+                                                                            size: 26
+                                                                            onClicked: ord.drop(oc.index)
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+
+                                                        Flow {
+                                                            visible: ord.hidden.length > 0
+                                                            width: parent.width
+                                                            spacing: 8
+
+                                                            Label {
+                                                                height: 36
+                                                                verticalAlignment: Text.AlignVCenter
+                                                                text: "Hidden"
+                                                                color: Look.fgDim
+                                                                font.pixelSize: 12
+                                                            }
+
+                                                            Repeater {
+                                                                model: ord.hidden
+
+                                                                Rectangle {
+                                                                    id: hc
+
+                                                                    required property var modelData
+
+                                                                    width: hcLabel.implicitWidth + 30
+                                                                    height: 36
+                                                                    radius: 18
+                                                                    color: hcMouse.containsMouse ? Look.surfaceHiest : "transparent"
+                                                                    border.width: 1
+                                                                    border.color: Qt.alpha(Look.fg, 0.2)
+                                                                    scale: hcMouse.pressed ? 0.95 : 1
+                                                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                                                    Behavior on scale { Anim { duration: Look.dur.fast } }
+
+                                                                    Label {
+                                                                        id: hcLabel
+                                                                        anchors.centerIn: parent
+                                                                        text: "+  " + ord.name(hc.modelData)
+                                                                        font.pixelSize: 12
+                                                                        color: Look.fgDim
+                                                                    }
+                                                                    MouseArea {
+                                                                        id: hcMouse
+                                                                        anchors.fill: parent
+                                                                        hoverEnabled: true
+                                                                        onClicked: ord.add(hc.modelData)
                                                                     }
                                                                 }
                                                             }

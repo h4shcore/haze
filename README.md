@@ -36,6 +36,9 @@ a notch that expands when you hover it, and little docks that grow out of the bo
 - **Customizable bar:** Settings → Bar & notch sets the bar height, whether the notch opens on hover or click (with open and
   close delays), clock size and weight, battery / bell / song toast visibility and launcher dimming; Appearance → Shape
   adds frame corners and the ear curve next to border thickness.
+- **Customizable control center:** reorder the cards, pick and order the toggles and shortcut buttons, resize the
+  toggle area and strip, change spacing and corner radius, and put the sliders and system monitor on either side
+  (Settings → Bar & notch).
 
 ## Requirements
 

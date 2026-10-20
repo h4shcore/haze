@@ -55,6 +55,18 @@ Singleton {
         ccShowMedia: true,
         ccShowSysMon: true,
         ccShowShortcuts: true,
+        ccOrder: "tiles,media,shortcuts",   // top to bottom
+        ccTiles: "wifi,bt,focus,inbox,night",   // toggles shown, in order (leave one out to hide it)
+        ccShortcuts: "apps,clip,wall,cap,power,caf,pwr,set",   // shortcut strip buttons, in order
+        ccTilesHeight: 176,       // px, height of the toggle area
+        ccStripHeight: 48,        // px, height of the shortcut strip
+        ccGap: 10,                // px between cards
+        ccCardRadius: 18,         // px, corners of the toggles (media card and strip are 6 px rounder)
+        ccTileSubtitles: true,
+        ccShowSliders: true,
+        ccSlidersSide: "right",   // "left" or "right"
+        ccSysMonSide: "right",
+        ccSysMonWidth: 130,
         nightLightTemp: 4000,     // Kelvin, lower = warmer
 
         widgetClock: false,   // desktop widgets (modules/WidgetsLayer.qml); X / Y = -1 means the default spot
@@ -115,6 +127,18 @@ Singleton {
             const v = data[k];
             out[k] = (v !== undefined && typeof v === typeof defaults[k]) ? v : defaults[k];
         }
+        return out;
+    }
+
+    // A comma-separated list setting as an array. Unknown names and repeats are dropped; keepAll appends
+    // any name from `all` that is missing, so an ordering can never lose an item (used for ccOrder).
+    function listOf(key, all, keepAll) {
+        const out = [];
+        String(cfg[key]).split(",").forEach(s => {
+            const k = s.trim();
+            if (all.indexOf(k) >= 0 && out.indexOf(k) < 0) out.push(k);
+        });
+        if (keepAll) all.forEach(k => { if (out.indexOf(k) < 0) out.push(k); });
         return out;
     }
 

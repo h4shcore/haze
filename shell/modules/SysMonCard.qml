@@ -11,7 +11,7 @@ Rectangle {
     property bool shown: false
     readonly property bool want: shown && visible
 
-    radius: 18
+    radius: Settings.cfg.ccCardRadius
     color: Look.surfaceHi
 
     onWantChanged: want ? SysMon.hold() : SysMon.release()

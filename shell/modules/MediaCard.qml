@@ -19,7 +19,7 @@ ClippingRectangle {
     }
 
     implicitHeight: col.implicitHeight + 28
-    radius: 24
+    radius: Settings.cfg.ccCardRadius + 6
     color: Look.surfaceHi
 
     // position isn't pushed by MPRIS, so poke it while playing and visible

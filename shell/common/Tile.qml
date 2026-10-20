@@ -13,7 +13,7 @@ Rectangle {
     signal menuRequested
 
     implicitHeight: 52
-    radius: 18
+    radius: Settings.cfg.ccCardRadius
     color: on ? Look.primary : mouse.containsMouse ? Look.surfaceHiest : Look.surfaceHi
     scale: mouse.pressed ? 0.95 : 1
 
@@ -47,6 +47,7 @@ Rectangle {
             }
             Label {
                 Layout.fillWidth: true
+                visible: Settings.cfg.ccTileSubtitles
                 text: root.subtitle
                 font.pixelSize: 11
                 color: root.on ? Look.primaryFg : Look.fgDim
