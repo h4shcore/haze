@@ -33,6 +33,9 @@ a notch that expands when you hover it, and little docks that grow out of the bo
 - **Lock screen:** blurred wallpaper, big clock and a password pill. Locks when idle, before suspend and on
   `loginctl lock-session` (the power menu's Lock). See [Lock screen](#lock-screen).
 - **Settings app:** a floating window with search and a live preview. Everything applies instantly.
+- **Customizable bar:** Settings → Bar & notch sets the bar height, whether the notch opens on hover or click (with open and
+  close delays), clock size and weight, battery / bell / song toast visibility and launcher dimming; Appearance → Shape
+  adds frame corners and the ear curve next to border thickness.
 
 ## Requirements
 

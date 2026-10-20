@@ -75,6 +75,8 @@ PanelWindow {
             { title: "Preview", items: [ { type: "preview" } ] },
             { title: "Shape", items: [
                 { key: "borderThickness", type: "int", label: "Border thickness", hint: "The frame around the screen", min: 2, max: 10, step: 1, unit: " px" },
+                { key: "frameRadius", type: "int", label: "Frame corners", hint: "Inner corners of the screen border", min: 2, max: 40, step: 1, unit: " px" },
+                { key: "earRadius", type: "int", label: "Ear curve", hint: "Where the notch and docks blend into the border", min: 2, max: 20, step: 1, unit: " px" },
                 { key: "notchRadius", type: "int", label: "Notch corners", hint: "Collapsed notch", min: 6, max: 26, step: 1, unit: " px" },
                 { key: "panelRadius", type: "int", label: "Expanded corners", hint: "Control center and calendar", min: 12, max: 36, step: 1, unit: " px" }
             ] },
@@ -103,10 +105,28 @@ PanelWindow {
                 { type: "action", action: "reapply", label: "Re-apply wallpaper", hint: "Regenerate the colors with these settings", button: "Apply" }
             ] }
         ] },
-        { id: "bar", label: "Bar & notch", glyph: "\uf2d0", title: "Bar & notch", sub: "The clock and the control center", sections: [
+        { id: "bar", label: "Bar & notch", glyph: "\uf2d0", title: "Bar & notch", sub: "The clock, the notch and the control center", sections: [
+            { title: "Size", items: [
+                { key: "barHeight", type: "int", label: "Bar height", hint: "Collapsed notch and top docks. Tiled windows follow", min: 32, max: 52, step: 1, unit: " px" }
+            ] },
+            { title: "Notch", items: [
+                { key: "notchOpenOn", type: "enum", label: "Open on", hint: "Click keeps it from opening when you just pass the pointer over it", options: [
+                    { v: "hover", l: "Hover" },
+                    { v: "click", l: "Click" }
+                ] },
+                { key: "notchOpenDelay", type: "int", label: "Open delay", hint: "Hover mode: how long the pointer rests before it opens", min: 0, max: 800, step: 50, unit: " ms" },
+                { key: "notchCloseDelay", type: "int", label: "Close delay", hint: "How long it stays open after the pointer leaves", min: 0, max: 1500, step: 50, unit: " ms" },
+                { key: "showBattery", type: "bool", label: "Battery", hint: "Left of the clock while open. Only on devices with a battery" },
+                { key: "showBell", type: "bool", label: "Notification bell", hint: "Right of the clock while open. The inbox stays in the control center" },
+                { key: "songToast", type: "bool", label: "Song toast", hint: "Show the new track in the notch when it changes" },
+                { key: "songToastSeconds", type: "int", label: "Song toast time", min: 1, max: 10, step: 1, unit: " s" },
+                { key: "scrimDim", type: "int", label: "Launcher dimming", hint: "How much the screen darkens behind the launcher", min: 0, max: 80, step: 5, unit: " %" }
+            ] },
             { title: "Clock", items: [
                 { key: "clock24h", type: "bool", label: "24-hour time", hint: "Off shows AM / PM" },
                 { key: "clockSeconds", type: "bool", label: "Show seconds" },
+                { key: "clockSize", type: "int", label: "Clock size", hint: "Text size, the date is one px smaller", min: 11, max: 20, step: 1, unit: " px" },
+                { key: "clockBold", type: "bool", label: "Bold time" },
                 { key: "dateFormat", type: "enum", label: "Date", hint: "Next to the time", options: [
                     { v: "ddd d MMM", l: "Thu 15 Oct" },
                     { v: "d MMM", l: "15 Oct" },

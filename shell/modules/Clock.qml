@@ -17,13 +17,13 @@ RowLayout {
 
     Label {
         text: Qt.formatDateTime(clock.date, parent.timeFormat)
-        font.bold: true
-        font.pixelSize: 14
+        font.bold: Settings.cfg.clockBold
+        font.pixelSize: Settings.cfg.clockSize
     }
     Label {
         visible: Settings.cfg.dateFormat !== ""
         text: Qt.formatDateTime(clock.date, Settings.cfg.dateFormat)
         color: Look.fgDim
-        font.pixelSize: 13
+        font.pixelSize: Settings.cfg.clockSize - 1
     }
 }

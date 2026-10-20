@@ -72,10 +72,10 @@ PanelWindow {
         Region { item: scrim }
     }
 
-    // 3s "now playing" toast in the notch when the track changes
+    // "now playing" toast in the notch when the track changes (Settings → Bar & notch)
     Timer {
         id: songTimer
-        interval: 3000
+        interval: Settings.cfg.songToastSeconds * 1000
         onTriggered: win.songShown = false
     }
     Timer {
@@ -86,15 +86,22 @@ PanelWindow {
     Connections {
         target: Players.active
         function onTrackTitleChanged() {
-            if (!win.songArmed || !win.focusedHere || !Players.active?.trackTitle) return;
+            if (!Settings.cfg.songToast || !win.songArmed || !win.focusedHere || !Players.active?.trackTitle) return;
             win.songShown = true;
             songTimer.restart();
         }
     }
 
+    // hover mode: the pointer has to rest on the notch for notchOpenDelay before it opens
+    Timer {
+        id: openTimer
+        interval: Settings.cfg.notchOpenDelay
+        onTriggered: win.expanded = true
+    }
+
     Timer {
         id: collapse
-        interval: 350
+        interval: Settings.cfg.notchCloseDelay
         onTriggered: {
             if (cc.busy || Notifs.replying !== null) collapse.restart();
             else win.expanded = false;
@@ -114,7 +121,7 @@ PanelWindow {
         Rectangle {
             anchors.fill: parent
             color: "black"
-            opacity: 0.35 * scrim.dim
+            opacity: Settings.cfg.scrimDim / 100 * scrim.dim
         }
         MouseArea {
             anchors.fill: parent
@@ -235,8 +242,11 @@ PanelWindow {
             onHoveredChanged: {
                 if (hovered) {
                     collapse.stop();
-                    win.expanded = true;
+                    if (Settings.cfg.notchOpenOn !== "hover") return;   // click mode: wait for the click
+                    if (Settings.cfg.notchOpenDelay > 0) openTimer.restart();
+                    else win.expanded = true;
                 } else {
+                    openTimer.stop();
                     collapse.restart();
                 }
             }
@@ -329,7 +339,7 @@ PanelWindow {
                     anchors.left: parent.left
                     anchors.leftMargin: Look.pad
                     anchors.verticalCenter: parent.verticalCenter
-                    visible: Battery.present
+                    visible: Battery.present && Settings.cfg.showBattery
                     opacity: win.expanded ? 1 : 0
                     enabled: win.expanded
                     Behavior on opacity { Anim { duration: 250; curve: Look.standard } }
@@ -339,6 +349,7 @@ PanelWindow {
                     anchors.right: parent.right
                     anchors.rightMargin: Look.pad - 6
                     anchors.verticalCenter: parent.verticalCenter
+                    visible: Settings.cfg.showBell
                     opacity: win.expanded ? 1 : 0
                     enabled: win.expanded
                     active: win.view === "notifs"
@@ -391,6 +402,15 @@ PanelWindow {
                 opacity: shown ? 1 : 0
                 visible: opacity > 0
                 Behavior on opacity { Anim { duration: 200; curve: Look.standard } }
+            }
+
+            // click mode: a click on the collapsed notch opens it
+            MouseArea {
+                anchors.fill: parent
+                z: 10
+                enabled: !win.expanded && Settings.cfg.notchOpenOn === "click"
+                cursorShape: Qt.PointingHandCursor
+                onClicked: win.expanded = true
             }
 
             NotifPanel {

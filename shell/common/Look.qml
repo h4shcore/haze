@@ -41,13 +41,13 @@ Singleton {
     }
 
     // ── sizing ──
-    readonly property int pillHeight: 38
+    readonly property int pillHeight: Settings.cfg.barHeight       // collapsed notch / top dock height (Settings)
     readonly property int gap: 8
     readonly property int pad: 16
     readonly property int panelRadius: Settings.cfg.panelRadius    // expanded notch corners (Settings)
     readonly property int border: Settings.cfg.borderThickness     // screen border thickness (Settings)
-    readonly property int borderRadius: 18     // inner corner radius of the screen border
-    readonly property int earRadius: 10        // concave corners where the notch meets the top border
+    readonly property int borderRadius: Settings.cfg.frameRadius   // inner corner radius of the screen border (Settings)
+    readonly property int earRadius: Settings.cfg.earRadius        // concave corners where the notch meets the top border (Settings)
     readonly property int notchRadius: Settings.cfg.notchRadius    // notch bottom corner radius (Settings)
     readonly property int reserveTop: pillHeight   // space tiled windows leave at the top (set to pillHeight so the notch never overlaps them)
 

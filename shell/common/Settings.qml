@@ -33,6 +33,20 @@ Singleton {
         borderThickness: 4,
         notchRadius: 16,
         panelRadius: 24,
+        frameRadius: 18,          // inner corner radius of the screen border
+        earRadius: 10,            // concave corners where the notch and docks meet the border
+        barHeight: 38,            // collapsed notch height, also the top docks and the space tiled windows leave
+        // bar & notch
+        clockSize: 14,            // px, the date is one px smaller
+        clockBold: true,
+        showBattery: true,
+        showBell: true,
+        notchOpenOn: "hover",     // "hover" or "click"
+        notchOpenDelay: 0,        // ms the pointer must rest on the notch before it opens (hover mode)
+        notchCloseDelay: 350,     // ms after the pointer leaves before it closes
+        songToast: true,          // show the track in the notch when it changes
+        songToastSeconds: 3,
+        scrimDim: 35,             // % the screen dims while the launcher is open
         // typeface (any installed font family)
         fontFamily: "Rubik",
         extraFonts: "",       // comma-separated families to offer in Settings
